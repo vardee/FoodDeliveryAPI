@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "kFCToZohT05wKO7oyOi9sIUDvo2py1RYuLO2K/pGfXw=",
+  "Source": "backendTask",
+  "BasePath": "_content/backendTask",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
