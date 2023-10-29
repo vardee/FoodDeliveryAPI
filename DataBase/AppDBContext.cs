@@ -8,6 +8,7 @@ namespace backendTask.DataBase.Models
         public AppDBContext(DbContextOptions<AppDBContext> options) : base(options) { }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<BlackListTokens> BlackListTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
