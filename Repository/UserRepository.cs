@@ -15,17 +15,14 @@ using System.Security.Claims;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json.Linq;
 using backendTask.Enums;
 using backendTask.InformationHelps;
-using Microsoft.Owin.BuilderProperties;
 
 namespace backendTask.Repository
 {
     public class UserRepository : IUserRepository
     {
         private readonly AppDBContext _db;
-        private readonly IServiceProvider _serviceProvider;
         private string secretKey;
         private string issuer;
         private string audience;

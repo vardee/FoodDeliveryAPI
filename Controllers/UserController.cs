@@ -79,7 +79,7 @@ namespace backendTask.Controllers
             return BadRequest(new {message = "Плохой профиль бро"});
         }
         [Authorize(Policy = "TokenNotInBlackList")]
-        [HttpPost("EditProfile")]
+        [HttpPut("EditProfile")]
         public async Task<IActionResult> editProfile([FromBody] EditProfileRequestDTO editProfileRequestDTO)
         {
             
