@@ -20,6 +20,7 @@ builder.Services.AddDbContext<AppDBContext>(optins =>
 optins.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddControllers();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddTransient<IDishRepository, DishRepository>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();
 
