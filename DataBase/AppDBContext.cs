@@ -10,6 +10,7 @@ namespace backendTask.DataBase.Models
         public DbSet<User> Users { get; set; }
         public DbSet<Dish> Dishes { get; set; }
         public DbSet<Cart> Carts { get; set; }
+        public DbSet<Order> Orders { get; set; }
         public DbSet<BlackListTokens> BlackListTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
