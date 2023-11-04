@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using backendTask.DataBase.Models;
@@ -11,9 +12,11 @@ using backendTask.DataBase.Models;
 namespace backendTask.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    partial class AppDBContextModelSnapshot : ModelSnapshot
+    [Migration("20231102162354_Dishes")]
+    partial class Dishes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,22 +38,6 @@ namespace backendTask.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("BlackListTokens");
-                });
-
-            modelBuilder.Entity("backendTask.DataBase.Models.Cart", b =>
-                {
-                    b.Property<Guid>("DishId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Amount")
-                        .HasColumnType("integer");
-
-                    b.HasKey("DishId", "UserId");
-
-                    b.ToTable("Carts");
                 });
 
             modelBuilder.Entity("backendTask.DataBase.Models.Dish", b =>
@@ -120,7 +107,7 @@ namespace backendTask.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Email");
+                    b.HasIndex("FullName");
 
                     b.ToTable("Users");
                 });
