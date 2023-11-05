@@ -1,6 +1,10 @@
-﻿namespace backendTask.Repository.IRepository
+﻿using backendTask.DataBase.Dto;
+
+namespace backendTask.Repository.IRepository
 {
-    public class IOrderRepository
+    public interface IOrderRepository
     {
+        public Task<GetOrderByIdDTO> getOrderById(string token, Guid Id);
+        public Task createOrderDTO(string token, CreateOrderDTO createOrderDTO);
     }
 }
