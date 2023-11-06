@@ -5,7 +5,7 @@ namespace backendTask.InformationHelps
 {
     public class Phone : ValidationAttribute
     {
-        private static readonly string PhoneNumberRegex = @"^\+\d{1,3}\s?\d{3,14}$";
+        private static readonly string PhoneNumberRegex = @"^\+7\s?\d{10}$";
 
         public Phone()
         {

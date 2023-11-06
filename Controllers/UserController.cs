@@ -31,11 +31,11 @@ namespace backendTask.Controllers
             var user = _db.Users.FirstOrDefault(x => x.Email == loginRequestDTO.email);
             if (user==null)
             {
-                return BadRequest(new { message = "Email or password is incorrect" });
+                throw new BadRequestException("Неправильный Email или пароль ");
             }
             else if(!(HashPassword.VerifyPassword(loginRequestDTO.password, user.Password)))
             {
-                return BadRequest(new { message = "Email or password is incorrect" });
+                throw new BadRequestException("Неправильный Email или пароль ");
             }
             else
             {
@@ -61,9 +61,10 @@ namespace backendTask.Controllers
             {
                 string token = authorizationHeader.Substring("Bearer ".Length);
                 await _userRepo.Logout(token);
+                return Ok();
             }
+            throw new Unauthorized("Данный пользователь не авторизован");
 
-            return Ok(new { message = "Logout successful" });
         }
         [Authorize(Policy = "TokenNotInBlackList")]
         [HttpGet("GetProfile")]
@@ -75,8 +76,7 @@ namespace backendTask.Controllers
                 string token = authorizationHeader.Substring("Bearer ".Length);
                 return Ok( await _userRepo.GetProfileDto(token));
             }
-
-            return BadRequest(new {message = "Плохой профиль бро"});
+            throw new Unauthorized("Данный пользователь не авторизован");
         }
         [Authorize(Policy = "TokenNotInBlackList")]
         [HttpPut("EditProfile")]
@@ -91,7 +91,7 @@ namespace backendTask.Controllers
                 return Ok();
             }
 
-            return BadRequest(new { message = "Плохой профиль" });
+            throw new Unauthorized("Данный пользователь не авторизован");
         }
 
     }

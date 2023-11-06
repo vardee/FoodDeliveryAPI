@@ -57,6 +57,7 @@ namespace backendTask.Repository
                 {
                     token = ""
                 };
+                throw new BadRequestException("Неправильный Email или пароль ");
             }
 
             var token = _tokenHelper.GenerateToken(user);
@@ -72,7 +73,7 @@ namespace backendTask.Repository
             var IsTrueUser = _db.Users.FirstOrDefault(u => registraionRequestDTO.Email == u.Email);
             if (IsTrueUser != null)
             {
-                throw new Exception(message: "Email is already in use");
+                throw new BadRequestException("Данный Email уже используется");
             }
             User user = new User()
             {
@@ -122,8 +123,12 @@ namespace backendTask.Repository
                     };
                 }
             }
+            else
+            {
+                throw new BadRequestException("Неправильный Email");
+            }
 
-            return null;
+            throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");
         }
         public async Task EditProfile(string token, EditProfileRequestDTO editProfileRequestDTO)
         {
@@ -162,6 +167,11 @@ namespace backendTask.Repository
                     await _db.SaveChangesAsync();
                 }
             }
+            else
+            {
+                throw new BadRequestException("Неправильный Email");
+            }
+            throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");
         }
     }
 }
