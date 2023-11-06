@@ -23,6 +23,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IDishRepository, DishRepository>();
 builder.Services.AddTransient<ICartRepository, CartRepository>();
 builder.Services.AddTransient<IOrderRepository, OrderRepository>();
+builder.Services.AddTransient<IRatingRepository, RatingRepository>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();
 

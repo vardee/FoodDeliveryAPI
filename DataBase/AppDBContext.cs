@@ -1,6 +1,7 @@
 ﻿using backendTask.Migrations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace backendTask.DataBase.Models
 {
@@ -12,6 +13,7 @@ namespace backendTask.DataBase.Models
         public DbSet<Dish> Dishes { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<Rating> Ratings { get; set; }
         public DbSet<OrderedDishes> OrderedDishes { get; set; }
         public DbSet<BlackListTokens> BlackListTokens { get; set; }
 
@@ -21,6 +23,7 @@ namespace backendTask.DataBase.Models
 
             modelBuilder.Entity<Cart>().HasKey(c => new { c.DishId, c.UserId });
             modelBuilder.Entity<Order>().HasKey(c => new { c.UserId, c.OrderId });
+            modelBuilder.Entity<Rating>().HasKey(c => new { c.DishId, c.UserId });
 
             modelBuilder.Entity<OrderedDishes>().HasKey(od => new { od.OrderId, od.DishId });
 
