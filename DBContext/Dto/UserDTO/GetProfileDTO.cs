@@ -7,7 +7,7 @@ namespace backendTask.DataBase.Dto.UserDTO
     {
         public Guid Id { get; set; }
         public string FullName { get; set; }
-        public DateOnly BirthDate { get; set; }
+        public DateTime BirthDate { get; set; }
 
         public Gender Gender { get; set; }
 

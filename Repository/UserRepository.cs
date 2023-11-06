@@ -55,27 +55,14 @@ namespace backendTask.Repository
             {
                 return new LoginResponseDTO()
                 {
-                    token = "",
-                    email = null
+                    token = ""
                 };
             }
-            var claims = new List<Claim>{new Claim(ClaimTypes.Email, user.Email) };
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(secretKey);
 
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(1),
-                Issuer = issuer,
-                Audience = audience,
-                SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var token = _tokenHelper.GenerateToken(user);
             LoginResponseDTO loginResponseDTO = new LoginResponseDTO()
             {
-                token = tokenHandler.WriteToken(token),
-                email = user
+                token = token
             };
             return loginResponseDTO;
         }
@@ -99,23 +86,12 @@ namespace backendTask.Repository
             };
             _db.Users.Add(user);
             await _db.SaveChangesAsync();
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(secretKey);
-            var claims = new List<Claim>{new Claim(ClaimTypes.Email, user.Email)};
 
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(1),
-                Issuer = issuer,
-                Audience = audience,
-                SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var token = _tokenHelper.GenerateToken(user);
+
             RegistrationResponseDTO registrationResponseDTO = new RegistrationResponseDTO()
             {
-                token = tokenHandler.WriteToken(token),
-                email = user
+                token = token
             };
 
             return registrationResponseDTO;
@@ -165,7 +141,7 @@ namespace backendTask.Repository
 
                     if (editProfileRequestDTO.BirthDate != null)
                     {
-                        user.BirthDate = (DateOnly)editProfileRequestDTO.BirthDate;
+                        user.BirthDate = (DateTime)editProfileRequestDTO.BirthDate;
                     }
 
                     if (editProfileRequestDTO.Gender != null)
