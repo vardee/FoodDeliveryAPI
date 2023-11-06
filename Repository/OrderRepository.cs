@@ -56,7 +56,11 @@ namespace backendTask.Repository
                     };
                 }
             }
-            return null;
+            else
+            {
+                throw new BadRequestException("Неправильный Email");
+            }
+            throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");
         }
 
         public async Task createOrderDTO(string token, CreateOrderDTO createOrderDTO)
@@ -110,6 +114,11 @@ namespace backendTask.Repository
                     await _db.SaveChangesAsync();
                 }
             }
+            else
+            {
+                throw new BadRequestException("Неправильный Email");
+            }
+            throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");
         }
         public async Task<List<GetListOrdersDTO>> getListOrdersDTO(string token)
         {
@@ -136,6 +145,10 @@ namespace backendTask.Repository
 
                     return listOrdersDTO;
                 }
+            }
+            else
+            {
+                throw new BadRequestException("Неправильный Email");
             }
             return new List<GetListOrdersDTO>();
         }
@@ -166,7 +179,11 @@ namespace backendTask.Repository
                     }
                 }
             }
-            return null;
+            else
+            {
+                throw new BadRequestException("Неправильный Email");
+            }
+            throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");
         }
     }
 }
