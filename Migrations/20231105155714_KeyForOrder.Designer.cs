@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using backendTask.DataBase.Models;
@@ -11,9 +12,11 @@ using backendTask.DataBase.Models;
 namespace backendTask.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    partial class AppDBContextModelSnapshot : ModelSnapshot
+    [Migration("20231105155714_KeyForOrder")]
+    partial class KeyForOrder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,10 +27,8 @@ namespace backendTask.Migrations
 
             modelBuilder.Entity("Order", b =>
                 {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("OrderId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Address")
@@ -40,13 +41,18 @@ namespace backendTask.Migrations
                     b.Property<DateTime>("OrderTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("Price")
-                        .HasColumnType("integer");
+                    b.Property<double>("Price")
+                        .HasColumnType("double precision");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.HasKey("UserId", "OrderId");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Orders");
                 });
@@ -63,6 +69,8 @@ namespace backendTask.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("OrderId", "DishId");
+
+                    b.HasIndex("DishId");
 
                     b.ToTable("OrderedDishes");
                 });
@@ -168,6 +176,36 @@ namespace backendTask.Migrations
                     b.HasIndex("Email");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Order", b =>
+                {
+                    b.HasOne("backendTask.DataBase.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("OrderedDishes", b =>
+                {
+                    b.HasOne("backendTask.DataBase.Models.Dish", "Dish")
+                        .WithMany()
+                        .HasForeignKey("DishId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Dish");
+
+                    b.Navigation("Order");
                 });
 #pragma warning restore 612, 618
         }

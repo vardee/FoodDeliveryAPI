@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using backendTask.DataBase.Models;
@@ -11,9 +12,11 @@ using backendTask.DataBase.Models;
 namespace backendTask.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    partial class AppDBContextModelSnapshot : ModelSnapshot
+    [Migration("20231105180521_UpdateOrderedDishes")]
+    partial class UpdateOrderedDishes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,14 +37,14 @@ namespace backendTask.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("DeliveryTime")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly>("DeliveryTime")
+                        .HasColumnType("date");
 
                     b.Property<DateTime>("OrderTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("Price")
-                        .HasColumnType("integer");
+                    b.Property<double>("Price")
+                        .HasColumnType("double precision");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -61,6 +64,10 @@ namespace backendTask.Migrations
 
                     b.Property<int>("Amount")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("OrderId", "DishId");
 

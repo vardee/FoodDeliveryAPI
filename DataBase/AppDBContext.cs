@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using backendTask.Migrations;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace backendTask.DataBase.Models
@@ -11,6 +12,7 @@ namespace backendTask.DataBase.Models
         public DbSet<Dish> Dishes { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderedDishes> OrderedDishes { get; set; }
         public DbSet<BlackListTokens> BlackListTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -18,8 +20,12 @@ namespace backendTask.DataBase.Models
             modelBuilder.Entity<User>().HasIndex(x => x.Email);
 
             modelBuilder.Entity<Cart>().HasKey(c => new { c.DishId, c.UserId });
+            modelBuilder.Entity<Order>().HasKey(c => new { c.UserId, c.OrderId });
+
+            modelBuilder.Entity<OrderedDishes>().HasKey(od => new { od.OrderId, od.DishId });
 
             base.OnModelCreating(modelBuilder);
         }
     }
+
 }
