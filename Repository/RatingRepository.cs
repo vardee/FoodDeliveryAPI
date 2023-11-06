@@ -34,7 +34,11 @@ namespace backendTask.Repository
                     return false;
                 }
             }
-            return false;
+            else
+            {
+                throw new BadRequestException("Неправильный Email");
+            }
+            throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");
         }
         public async Task setDishRating(string token, Guid Id, double rating)
         {
@@ -79,7 +83,16 @@ namespace backendTask.Repository
                         await _db.SaveChangesAsync();
                     }
                 }
+                else
+                {
+                    throw new BadRequestException("Пользователь не найден");
+                }
             }
+            else
+            {
+                throw new BadRequestException("Неправильный Email");
+            }
+            throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");
         }
     }
 }

@@ -44,7 +44,10 @@ namespace backendTask.Repository
                     return userCartDTO;
                 }
             }
-            return new List<GetUserCartResponseDTO>();
+            else
+            {
+                throw new BadRequestException("Неправильный Email");
+            }
         }
         public async Task AddToUserCartDTO(string token, Guid dishId)
         {
@@ -82,6 +85,12 @@ namespace backendTask.Repository
                     await _db.SaveChangesAsync();
                 }
             }
+            else
+            {
+                throw new BadRequestException("Неправильный Email");
+            }
+
+            throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");
         }
 
         public async Task DeleteFromUserCartDTO(string token, Guid dishId)
@@ -111,6 +120,12 @@ namespace backendTask.Repository
                     }
                 }
             }
+            else
+            {
+                throw new BadRequestException("Неправильный Email");
+            }
+
+            throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");
         }
 
 

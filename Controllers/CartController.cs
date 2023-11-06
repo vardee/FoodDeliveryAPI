@@ -28,7 +28,7 @@ namespace backendTask.Controllers
                 return Ok(result);
             }
 
-            return BadRequest(new { message = "Плохой профиль бро" });
+            throw new Unauthorized("Данный пользователь не авторизован");
         }
         [Authorize(Policy = "TokenNotInBlackList")]
         [HttpPost("AddToUserCart/{Id:guid}")]
@@ -39,10 +39,10 @@ namespace backendTask.Controllers
             {
                 string token = authorizationHeader.Substring("Bearer ".Length);
                 await _cartRepo.AddToUserCartDTO(token, Id);
-                return Ok(new { message = "Блюдо успешно добавлено в корзину" });
+                return Ok();
             }
 
-            return BadRequest(new { message = "Плохой профиль бро" });
+            throw new Unauthorized("Данный пользователь не авторизован");
         }
 
         [Authorize(Policy = "TokenNotInBlackList")]
@@ -54,10 +54,10 @@ namespace backendTask.Controllers
             {
                 string token = authorizationHeader.Substring("Bearer ".Length);
                 await _cartRepo.DeleteFromUserCartDTO(token, Id);
-                return Ok(new { message = "Блюдо успешно удалено из корзину" });
+                return Ok();
             }
 
-            return BadRequest(new { message = "Плохой профиль бро" });
+            throw new Unauthorized("Данный пользователь не авторизован");
         }
 
     }
