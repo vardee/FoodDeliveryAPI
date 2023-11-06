@@ -2,7 +2,7 @@
 {
     public class CreateOrderDTO
     {
-        public DateOnly deliveryTime { get; set; }
+        public DateTime deliveryTime { get; set; }
         public string AdreessId { get; set; }
     }
 }

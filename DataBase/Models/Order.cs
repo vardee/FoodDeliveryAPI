@@ -11,8 +11,8 @@ public class Order
     [Key]
     public Guid UserId { get; set; }
     public DateTime OrderTime { get; set; }
-    public DateOnly DeliveryTime { get; set; }
+    public DateTime DeliveryTime { get; set; }
     public OrderStatus Status { get; set; }
-    public double Price { get; set; }
+    public int Price { get; set; }
     public string Address { get; set; }
 }

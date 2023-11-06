@@ -1,6 +1,7 @@
 ﻿using backendTask.DataBase.Dto;
 using backendTask.DataBase.Models;
 using backendTask.Enums;
+using backendTask.Migrations;
 using backendTask.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -119,7 +120,70 @@ namespace backendTask.Repository
                 }
             }
         }
+        public async Task<List<GetListOrdersDTO>> getListOrdersDTO(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtToken = tokenHandler.ReadJwtToken(token);
+            string email = "";
 
+            if (jwtToken.Payload.TryGetValue("email", out var emailObj) && emailObj is string emailValue)
+            {
+                email = emailValue;
+            }
 
+            if (!string.IsNullOrEmpty(email))
+            {
+                var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+                if (user != null)
+                {
+                    var userOrders = _db.Orders
+                        .Where(od => od.UserId == user.Id)
+                        .ToList();
+
+                    var listOrdersDTO = userOrders.Select(order => new GetListOrdersDTO
+                    {
+                        Id = order.OrderId,
+                        deliveryTime = order.DeliveryTime,
+                        orderTime = order.OrderTime,
+                        status = order.Status,
+                        price = order.Price,
+                    }).ToList();
+
+                    return listOrdersDTO;
+                }
+            }
+            return new List<GetListOrdersDTO>();
+        }
+        public async Task<ConfirmOrderStatusDTO> confirmOrderStatus(string token, Guid Id)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtToken = tokenHandler.ReadJwtToken(token);
+            string email = "";
+
+            if (jwtToken.Payload.TryGetValue("email", out var emailObj) && emailObj is string emailValue)
+            {
+                email = emailValue;
+            }
+
+            if (!string.IsNullOrEmpty(email))
+            {
+                var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+                if (user != null)
+                {
+                    // Найдите заказ пользователя по UserId и OrderId
+                    var order = await _db.Orders.FirstOrDefaultAsync(od => od.UserId == user.Id && od.OrderId == Id);
+
+                    if (order != null)
+                    {
+   
+                        order.Status = OrderStatus.Delivered;
+                        await _db.SaveChangesAsync();
+                    }
+                }
+            }
+            return null;
+        }
     }
 }

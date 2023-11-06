@@ -46,6 +46,33 @@ namespace backendTask.Controllers
 
             return BadRequest(new { message = "Плохой профиль бро" });
         }
+        [Authorize(Policy = "TokenNotInBlackList")]
+        [HttpGet("order")]
+        public async Task<IActionResult> GetListOrders()
+        {
+            string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
+            if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer "))
+            {
+                string token = authorizationHeader.Substring("Bearer ".Length);
 
+                return Ok(await _orderRepo.getListOrdersDTO(token));
+            }
+
+            return BadRequest(new { message = "Плохой профиль бро" });
+        }
+        [Authorize(Policy = "TokenNotInBlackList")]
+        [HttpPost ("order/{Id:guid}/status")]
+        public async Task<IActionResult> ConfirmOrderStatusDTO(Guid Id)
+        {
+            string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
+            if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer "))
+            {
+                string token = authorizationHeader.Substring("Bearer ".Length);
+
+                return Ok(await _orderRepo.confirmOrderStatus(token,Id));
+            }
+
+            return BadRequest(new { message = "Плохой профиль бро" });
+        }
     }
 }
