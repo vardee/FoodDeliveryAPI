@@ -1,11 +1,11 @@
 ﻿using backendTask.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace backendTask.DataBase.Dto
+namespace backendTask.DataBase.Dto.UserDTO
 {
     public class GetProfileDTO
     {
-        public Guid Id {get; set;}
+        public Guid Id { get; set; }
         public string FullName { get; set; }
         public DateOnly BirthDate { get; set; }
 

@@ -1,4 +1,4 @@
-﻿using backendTask.DataBase.Dto;
+﻿using backendTask.DataBase.Dto.UserDTO;
 using backendTask.DataBase.Models;
 using Microsoft.Extensions.Primitives;
 

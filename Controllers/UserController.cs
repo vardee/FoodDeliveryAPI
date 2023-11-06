@@ -1,6 +1,6 @@
 ﻿using backendTask.AdditionalService;
-using backendTask.DataBase.Dto;
-using backendTask.DataBase.Models;
+using backendTask.DataBase;
+using backendTask.DataBase.Dto.UserDTO;
 using backendTask.InformationHelps;
 using backendTask.Repository;
 using backendTask.Repository.IRepository;

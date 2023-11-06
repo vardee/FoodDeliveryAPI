@@ -1,4 +1,5 @@
-﻿ using backendTask.DataBase.Dto;
+﻿using backendTask.DataBase;
+using backendTask.DataBase.Dto.CartDTO;
 using backendTask.DataBase.Models;
 using backendTask.Enums;
 using backendTask.Repository.IRepository;
@@ -10,19 +11,15 @@ namespace backendTask.Repository
     public class CartRepository: ICartRepository
     {
         private readonly AppDBContext _db;
-       public CartRepository(AppDBContext db, IConfiguration configuration)
+        private readonly TokenHelper _tokenHelper;
+        public CartRepository(AppDBContext db, IConfiguration configuration, TokenHelper tokenHelper)
         {
             _db = db;
+            _tokenHelper = tokenHelper;   
         }
         public async Task<List<GetUserCartResponseDTO>> GetUserCartDTO(string token)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtToken = tokenHandler.ReadJwtToken(token);
-            string email = "";
-            if (jwtToken.Payload.TryGetValue("email", out var emailObj) && emailObj is string emailValue)
-            {
-                email = emailValue;
-            }
+            string email = _tokenHelper.GetUserEmailFromToken(token);
 
             if (!string.IsNullOrEmpty(email))
             {
@@ -51,14 +48,7 @@ namespace backendTask.Repository
         }
         public async Task AddToUserCartDTO(string token, Guid dishId)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtToken = tokenHandler.ReadJwtToken(token);
-            string email = "";
-
-            if (jwtToken.Payload.TryGetValue("email", out var emailObj) && emailObj is string emailValue)
-            {
-                email = emailValue;
-            }
+            string email = _tokenHelper.GetUserEmailFromToken(token);
 
             if (!string.IsNullOrEmpty(email))
             {
@@ -96,14 +86,7 @@ namespace backendTask.Repository
 
         public async Task DeleteFromUserCartDTO(string token, Guid dishId)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtToken = tokenHandler.ReadJwtToken(token);
-            string email = "";
-
-            if (jwtToken.Payload.TryGetValue("email", out var emailObj) && emailObj is string emailValue)
-            {
-                email = emailValue;
-            }
+            string email = _tokenHelper.GetUserEmailFromToken(token);
 
             if (!string.IsNullOrEmpty(email))
             {

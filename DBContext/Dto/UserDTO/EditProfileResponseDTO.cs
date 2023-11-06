@@ -1,6 +1,6 @@
 ﻿using backendTask.Enums;
 
-namespace backendTask.DataBase.Dto
+namespace backendTask.DataBase.Dto.UserDTO
 {
     public class EditProfileResponseDTO
     {

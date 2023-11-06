@@ -1,5 +1,7 @@
-﻿using backendTask.DataBase.Dto;
-using backendTask.DataBase.Models;
+﻿using backendTask.DataBase;
+using backendTask.DataBase.Dto;
+using backendTask.DataBase.Dto.CartDTO;
+using backendTask.DataBase.Dto.OrderDTO;
 using backendTask.Enums;
 using backendTask.Migrations;
 using backendTask.Repository.IRepository;
@@ -12,19 +14,15 @@ namespace backendTask.Repository
     public class OrderRepository : IOrderRepository
     {
         private readonly AppDBContext _db;
-        public OrderRepository(AppDBContext db, IConfiguration configuration)
+        private readonly TokenHelper _tokenHelper;
+        public OrderRepository(AppDBContext db, IConfiguration configuration, TokenHelper tokenHelper)
         {
             _db = db;
+            _tokenHelper = tokenHelper;
         }
         public async Task<GetOrderByIdDTO> getOrderById(string token, Guid Id)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtToken = tokenHandler.ReadJwtToken(token);
-            string email = "";
-            if (jwtToken.Payload.TryGetValue("email", out var emailObj) && emailObj is string emailValue)
-            {
-                email = emailValue;
-            }
+            string email = _tokenHelper.GetUserEmailFromToken(token);
 
             if (!string.IsNullOrEmpty(email))
             {
@@ -63,14 +61,7 @@ namespace backendTask.Repository
 
         public async Task createOrderDTO(string token, CreateOrderDTO createOrderDTO)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtToken = tokenHandler.ReadJwtToken(token);
-            string email = "";
-
-            if (jwtToken.Payload.TryGetValue("email", out var emailObj) && emailObj is string emailValue)
-            {
-                email = emailValue;
-            }
+            string email = _tokenHelper.GetUserEmailFromToken(token);
 
             if (!string.IsNullOrEmpty(email))
             {
@@ -122,14 +113,7 @@ namespace backendTask.Repository
         }
         public async Task<List<GetListOrdersDTO>> getListOrdersDTO(string token)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtToken = tokenHandler.ReadJwtToken(token);
-            string email = "";
-
-            if (jwtToken.Payload.TryGetValue("email", out var emailObj) && emailObj is string emailValue)
-            {
-                email = emailValue;
-            }
+            string email = _tokenHelper.GetUserEmailFromToken(token);
 
             if (!string.IsNullOrEmpty(email))
             {
@@ -172,7 +156,6 @@ namespace backendTask.Repository
 
                 if (user != null)
                 {
-                    // Найдите заказ пользователя по UserId и OrderId
                     var order = await _db.Orders.FirstOrDefaultAsync(od => od.UserId == user.Id && od.OrderId == Id);
 
                     if (order != null)

@@ -1,9 +1,10 @@
-﻿using backendTask.Migrations;
+﻿using backendTask.DataBase.Models;
+using backendTask.Migrations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
 
-namespace backendTask.DataBase.Models
+namespace backendTask.DataBase
 {
     public class AppDBContext : DbContext
     {

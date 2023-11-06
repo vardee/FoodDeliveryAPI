@@ -7,10 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="DataBase\Dto\Новая папка\**" />
-    <Content Remove="DataBase\Dto\Новая папка\**" />
-    <EmbeddedResource Remove="DataBase\Dto\Новая папка\**" />
-    <None Remove="DataBase\Dto\Новая папка\**" />
+    <Compile Remove="DBContext\Dto\Новая папка\**" />
+    <Content Remove="DBContext\Dto\Новая папка\**" />
+    <EmbeddedResource Remove="DBContext\Dto\Новая папка\**" />
+    <None Remove="DBContext\Dto\Новая папка\**" />
   </ItemGroup>
 
   <ItemGroup>

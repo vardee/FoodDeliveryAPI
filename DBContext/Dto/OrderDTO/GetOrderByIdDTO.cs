@@ -1,8 +1,9 @@
-﻿using backendTask.DataBase.Models;
+﻿using backendTask.DataBase.Dto.CartDTO;
+using backendTask.DataBase.Models;
 using backendTask.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace backendTask.DataBase.Dto
+namespace backendTask.DataBase.Dto.OrderDTO
 {
     public class GetOrderByIdDTO
     {

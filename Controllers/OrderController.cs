@@ -1,5 +1,5 @@
-﻿using backendTask.DataBase.Dto;
-using backendTask.DataBase.Models;
+﻿using backendTask.DataBase;
+using backendTask.DataBase.Dto.OrderDTO;
 using backendTask.Repository.IRepository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

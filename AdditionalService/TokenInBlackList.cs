@@ -1,12 +1,11 @@
-﻿using backendTask.DataBase.Models;
-using backendTask.InformationHelps;
+﻿using backendTask.DataBase;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace backendTask.Authorization
+namespace backendTask.AdditionalService
 {
     public class TokenInBlackListHandler : AuthorizationHandler<TokenBlackListRequirment>
     {

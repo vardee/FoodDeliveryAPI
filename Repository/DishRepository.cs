@@ -1,4 +1,6 @@
-﻿using backendTask.DataBase.Dto;
+﻿using backendTask.DataBase;
+using backendTask.DataBase.Dto;
+using backendTask.DataBase.Dto.DishDTO;
 using backendTask.DataBase.Models;
 using backendTask.Enums;
 using backendTask.Repository.IRepository;
@@ -73,7 +75,6 @@ namespace backendTask.Repository
         }
         public async Task<GetDishByIdDTO> GetDishByIdDTO(Guid CurrentId)
         {
-            Console.WriteLine(CurrentId);
             var currentDish = await _db.Dishes.FirstOrDefaultAsync(d => d.Id == CurrentId);
             if(currentDish == null)
             {

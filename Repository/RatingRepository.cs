@@ -1,4 +1,5 @@
-﻿using backendTask.DataBase.Dto;
+﻿using backendTask.DataBase;
+using backendTask.DataBase.Dto;
 using backendTask.DataBase.Models;
 using backendTask.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
@@ -9,20 +10,15 @@ namespace backendTask.Repository
     public class RatingRepository : IRatingRepository
     {
         private readonly AppDBContext _db;
-        public RatingRepository(AppDBContext db, IConfiguration configuration)
+        private readonly TokenHelper _tokenHelper;
+        public RatingRepository(AppDBContext db, IConfiguration configuration, TokenHelper tokenHelper)
         {
             _db = db;
+            _tokenHelper = tokenHelper;
         }
-
         public async Task<bool> checkUserSetRating(string token, Guid Id)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtToken = tokenHandler.ReadJwtToken(token);
-            string email = "";
-            if (jwtToken.Payload.TryGetValue("email", out var emailObj) && emailObj is string emailValue)
-            {
-                email = emailValue;
-            }
+            string email = _tokenHelper.GetUserEmailFromToken(token);
 
             if (!string.IsNullOrEmpty(email))
             {
@@ -42,13 +38,7 @@ namespace backendTask.Repository
         }
         public async Task setDishRating(string token, Guid Id, double rating)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtToken = tokenHandler.ReadJwtToken(token);
-            string email = "";
-            if (jwtToken.Payload.TryGetValue("email", out var emailObj) && emailObj is string emailValue)
-            {
-                email = emailValue;
-            }
+            string email = _tokenHelper.GetUserEmailFromToken(token);
 
             if (!string.IsNullOrEmpty(email))
             {

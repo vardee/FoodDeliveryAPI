@@ -1,4 +1,4 @@
-﻿using backendTask.DataBase.Dto;
+﻿using backendTask.DataBase.Dto.OrderDTO;
 
 namespace backendTask.Repository.IRepository
 {

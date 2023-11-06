@@ -1,4 +1,4 @@
-﻿namespace backendTask.DataBase.Dto
+﻿namespace backendTask.DataBase.Dto.CartDTO
 {
     public class GetUserCartResponseDTO
     {

@@ -1,4 +1,4 @@
-﻿using backendTask.DataBase.Models;
+﻿using backendTask.DataBase;
 using backendTask.Repository.IRepository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -1,7 +1,7 @@
 ﻿using backendTask.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace backendTask.DataBase.Dto
+namespace backendTask.DataBase.Dto.UserDTO
 {
     public class EditProfileRequestDTO
     {

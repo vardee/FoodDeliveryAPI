@@ -1,5 +1,4 @@
 ﻿using backendTask.AdditionalService;
-using backendTask.DataBase.Dto;
 using backendTask.DataBase.Models;
 using backendTask.Repository.IRepository;
 using Microsoft.AspNetCore.Identity;
@@ -13,26 +12,29 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.AccessControl;
 using System.Security.Claims;
 using System.Text;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
 using backendTask.Enums;
 using backendTask.InformationHelps;
+using backendTask.DataBase.Dto.UserDTO;
+using backendTask.DataBase;
 
 namespace backendTask.Repository
 {
     public class UserRepository : IUserRepository
     {
         private readonly AppDBContext _db;
+        private readonly TokenHelper _tokenHelper;
         private string secretKey;
         private string issuer;
         private string audience;
 
-        public UserRepository(AppDBContext db, IConfiguration configuration)
+
+        public UserRepository(AppDBContext db, IConfiguration configuration, TokenHelper tokenHelper)
         {
             _db = db;
             secretKey = configuration.GetValue<string>("AppSettings:Secret");
             issuer = configuration.GetValue<string>("AppSettings:Issuer");
             audience = configuration.GetValue<string>("AppSettings:Audience");
+            _tokenHelper = tokenHelper;
         }
 
         public bool IsUniqueUser(string Email)
@@ -125,13 +127,7 @@ namespace backendTask.Repository
         }
         public async Task<GetProfileDTO> GetProfileDto(string token)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtToken = tokenHandler.ReadJwtToken(token);
-            string email = "";
-            if (jwtToken.Payload.TryGetValue("email", out var emailObj) && emailObj is string emailValue)
-            {
-                email = emailValue;
-            }
+            string email = _tokenHelper.GetUserEmailFromToken(token);
 
             if (!string.IsNullOrEmpty(email))
             {
@@ -155,13 +151,7 @@ namespace backendTask.Repository
         }
         public async Task EditProfile(string token, EditProfileRequestDTO editProfileRequestDTO)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtToken = tokenHandler.ReadJwtToken(token);
-            string email = "";
-            if (jwtToken.Payload.TryGetValue("email", out var emailObj) && emailObj is string emailValue)
-            {
-                email = emailValue;
-            }
+            string email = _tokenHelper.GetUserEmailFromToken(token);
             if (!string.IsNullOrEmpty(email))
             {
                 var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
