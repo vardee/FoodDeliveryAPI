@@ -55,13 +55,4 @@ public class TokenHelper
 
         return tokenHandler.WriteToken(token);
     }
-    private string GetAuthTokenFromRequest()
-    {
-        string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
-        if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer "))
-        {
-            return authorizationHeader.Substring("Bearer ".Length);
-        }
-        return null;
-    }
 }

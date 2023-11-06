@@ -44,7 +44,7 @@ namespace backendTask.Controllers
                 return Ok(await _ratingRepo.checkUserSetRating(token, Id));
             }
 
-            return BadRequest(new { message = "Плохой профиль бро" });
+            throw new Unauthorized("Данный пользователь не авторизован");
         }
 
         [Authorize(Policy = "TokenNotInBlackList")]
@@ -59,7 +59,7 @@ namespace backendTask.Controllers
                 return Ok();
             }
 
-            return BadRequest(new { message = "Плохой профиль бро" });
+            throw new Unauthorized("Данный пользователь не авторизован");
         }
     }
 }

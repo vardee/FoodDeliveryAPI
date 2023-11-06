@@ -59,7 +59,7 @@ namespace backendTask.Repository
 
             if (currentDishes.Count == 0)
             {
-                throw new Exception(message: "Page not found");
+                throw new BadRequestException("Страница не найдена");
             }
 
             return new GetDishResponseDTO
@@ -78,7 +78,7 @@ namespace backendTask.Repository
             var currentDish = await _db.Dishes.FirstOrDefaultAsync(d => d.Id == CurrentId);
             if(currentDish == null)
             {
-                throw new Exception(message: "Данного блюда нет в списке");
+                throw new BadRequestException("Данного блюда нет в списке блюд");
             }
             else
             {
