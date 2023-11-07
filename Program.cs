@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using backendtask.Middleware;
+using backendTask.DBContext;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDBContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<AddressDBContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("AddressConnection")));
 builder.Services.AddControllers();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IDishRepository, DishRepository>();
