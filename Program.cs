@@ -27,8 +27,10 @@ builder.Services.AddTransient<IDishRepository, DishRepository>();
 builder.Services.AddTransient<ICartRepository, CartRepository>();
 builder.Services.AddTransient<IOrderRepository, OrderRepository>();
 builder.Services.AddTransient<IRatingRepository, RatingRepository>();
+builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<TokenHelper>();
+builder.Services.AddSingleton<EnumTranscription>(provider => new EnumTranscription("someStringValue"));
 builder.Services.AddEndpointsApiExplorer();
 
 

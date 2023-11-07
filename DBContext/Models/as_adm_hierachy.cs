@@ -6,21 +6,27 @@ namespace backendTask.DBContext.Models
     public class as_adm_hierachy
     {
         [Key]
-        public BigInteger id { get; set; }
-        public BigInteger objectid { get; set; }
-        public BigInteger parentobjid { get; set; }
-        public BigInteger changeid { get; set; }
-        public string regioncode { get; set; }
-        public string areacode { get; set; }
-        public string citycode { get; set; }
-        public int placecode { get; set; }
-        public BigInteger plancode { get; set; }
-        public BigInteger streetcode { get; set; }
-        public DateOnly previd { get; set; }
-        public DateOnly updatedate { get; set; }
-        public DateOnly startdate { get; set; }
-        public DateOnly enddate { get; set; }
-        public int isactive { get; set; }
-        public string path { get; set; }
+        public long id { get; set; }
+        public long? objectid { get; set; }
+        public long? parentobjid { get; set; }
+        public long? changeid { get; set; }
+        public string? regioncode { get; set; }
+        public string? areacode { get; set; }
+
+        public string? citycode { get; set; }
+
+        public string? placecode { get; set; }
+        public string? plancode { get; set; }
+        public string? streetcode { get; set; }
+
+        public long? previd { get; set; }
+
+        public long? nextid { get; set; }
+
+        public DateOnly? updatedate { get; set; }
+        public DateOnly? startdate { get; set; }
+        public DateOnly? enddate { get; set; }
+        public int? isactive { get; set; }
+        public string? path { get; set; }
     }
 }
