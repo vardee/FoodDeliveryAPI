@@ -1,4 +1,6 @@
-﻿using backendTask.DataBase.Models;
+﻿using backendTask.DataBase;
+using backendTask.DataBase.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -8,16 +10,20 @@ using System.Text;
 public class TokenHelper
 {
     private readonly IConfiguration _configuration;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly string _secretKey;
     private readonly string _issuer;
     private readonly string _audience;
 
-    public TokenHelper(IConfiguration configuration)
+    public TokenHelper(IConfiguration configuration, IServiceProvider serviceProvider, IHttpContextAccessor httpContextAccessor)
     {
         _configuration = configuration;
         _secretKey = configuration.GetValue<string>("AppSettings:Secret");
         _issuer = configuration.GetValue<string>("AppSettings:Issuer");
         _audience = configuration.GetValue<string>("AppSettings:Audience");
+        _serviceProvider = serviceProvider;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public string GetUserEmailFromToken(string token)
@@ -54,5 +60,19 @@ public class TokenHelper
         var token = tokenHandler.CreateToken(tokenDescriptor);
 
         return tokenHandler.WriteToken(token);
+    }
+    public string GetTokenFromHeader()
+    {
+        using (var scope = _serviceProvider.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDBContext>();
+
+            string authorizationHeader = _serviceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer "))
+            {
+                return authorizationHeader.Substring("Bearer ".Length);
+            }
+            return null;
+        }
     }
 }

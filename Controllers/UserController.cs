@@ -11,12 +11,14 @@ namespace backendTask.Controllers
     public class UserController : Controller
     {
         private readonly IUserRepository _userRepo;
+        private readonly TokenHelper _tokenHelper;
         private readonly AppDBContext _db;
 
-        public UserController(IUserRepository userRepo, AppDBContext db)
+        public UserController(IUserRepository userRepo, AppDBContext db, TokenHelper tokenHelper)
         {
             _userRepo = userRepo;
             _db = db;
+            _tokenHelper = tokenHelper;
         }
         [HttpPost("Login")]
         [ProducesResponseType(typeof(LoginResponseDTO), 200)]
@@ -59,14 +61,13 @@ namespace backendTask.Controllers
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> Logout()
         {
-            string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
-            if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer "))
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
             {
-                string token = authorizationHeader.Substring("Bearer ".Length);
-                await _userRepo.Logout(token);
-                return Ok();
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
-            throw new UnauthorizedException("Данный пользователь не авторизован");
+            await _userRepo.Logout(token);
+            return Ok();
 
         }
         [Authorize(Policy = "TokenNotInBlackList")]
@@ -78,13 +79,12 @@ namespace backendTask.Controllers
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> GetProfile()
         {
-            string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
-            if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer "))
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
             {
-                string token = authorizationHeader.Substring("Bearer ".Length);
-                return Ok( await _userRepo.GetProfileDto(token));
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
-            throw new UnauthorizedException("Данный пользователь не авторизован");
+            return Ok(await _userRepo.GetProfileDto(token));
         }
         [Authorize(Policy = "TokenNotInBlackList")]
         [HttpPut("EditProfile")]
@@ -94,16 +94,13 @@ namespace backendTask.Controllers
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> editProfile([FromBody] EditProfileRequestDTO editProfileRequestDTO)
         {
-            
-            string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
-            if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer "))
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
             {
-                string token = authorizationHeader.Substring("Bearer ".Length);
-                await _userRepo.EditProfile(token, editProfileRequestDTO);
-                return Ok();
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
-
-            throw new UnauthorizedException("Данный пользователь не авторизован");
+            await _userRepo.EditProfile(token, editProfileRequestDTO);
+            return Ok();
         }
 
     }
