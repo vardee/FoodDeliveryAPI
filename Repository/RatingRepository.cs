@@ -33,12 +33,15 @@ namespace backendTask.Repository
                     }
                     return false;
                 }
+                else
+                {
+                    throw new BadRequestException("Пользователь не найден");
+                }
             }
             else
             {
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
-            throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");
         }
         public async Task setDishRating(string token, Guid Id, double rating)
         {
@@ -92,7 +95,6 @@ namespace backendTask.Repository
             {
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
-            throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");
         }
     }
 }

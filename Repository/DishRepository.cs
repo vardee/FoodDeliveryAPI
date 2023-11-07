@@ -5,8 +5,6 @@ using backendTask.DataBase.Models;
 using backendTask.Enums;
 using backendTask.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using System.Collections.Generic;
 namespace backendTask.Repository
 {
     public class DishRepository: IDishRepository

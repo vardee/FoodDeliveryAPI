@@ -101,6 +101,10 @@ namespace backendTask.Repository
                 await _db.BlackListTokens.AddAsync(new BlackListTokens { BlackToken = token });
                 await _db.SaveChangesAsync();
             }
+            else
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
         }
         public async Task<GetProfileDTO> GetProfileDto(string token)
         {
@@ -122,13 +126,16 @@ namespace backendTask.Repository
                         Address = user.Address,
                     };
                 }
+                else
+                {
+                    throw new BadRequestException("Пользователь не найден");
+                }
             }
             else
             {
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
 
-            throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");
         }
         public async Task EditProfile(string token, EditProfileRequestDTO editProfileRequestDTO)
         {
@@ -171,7 +178,6 @@ namespace backendTask.Repository
             {
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
-            throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");
         }
     }
 }

@@ -1,10 +1,8 @@
 ﻿using backendTask.DataBase;
 using backendTask.DataBase.Dto.CartDTO;
 using backendTask.DataBase.Models;
-using backendTask.Enums;
 using backendTask.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace backendTask.Repository
 {
@@ -41,7 +39,18 @@ namespace backendTask.Repository
                         image = _db.Dishes.FirstOrDefault(dish => dish.Id == cartItem.DishId)?.Image
                     }).ToList();
 
-                    return userCartDTO;
+                    if(userCartDTO != null)
+                    {
+                        return userCartDTO;
+                    }
+                    else
+                    {
+                        throw new BadRequestException("Ваша корзина пуста");
+                    }
+                }
+                else
+                {
+                    throw new BadRequestException("Пользователь не найден");
                 }
             }
             else
@@ -64,7 +73,7 @@ namespace backendTask.Repository
 
                     if (dish == null)
                     {
-                        throw new Exception(message: "Данного блюда нет");
+                        throw new BadRequestException("Данного блюда нет");
                     }
                     var cartItem = _db.Carts.FirstOrDefault(c => c.UserId == user.Id && c.DishId == dishId);
 
@@ -85,13 +94,16 @@ namespace backendTask.Repository
 
                     await _db.SaveChangesAsync();
                 }
+                else
+                {
+                    throw new BadRequestException("Пользователь не найден");
+                }
             }
             else
             {
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
 
-            throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");
         }
 
         public async Task DeleteFromUserCartDTO(string token, Guid dishId)
@@ -119,6 +131,14 @@ namespace backendTask.Repository
 
                         await _db.SaveChangesAsync();
                     }
+                    else
+                    {
+                        throw new BadRequestException("Данное блюдо в корзине не найдено");
+                    }
+                }
+                else
+                {
+                    throw new BadRequestException("Пользователь не найден");
                 }
             }
             else
@@ -126,9 +146,6 @@ namespace backendTask.Repository
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
 
-            throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");
         }
-
-
     }
 }

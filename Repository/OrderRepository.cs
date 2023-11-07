@@ -55,12 +55,15 @@ namespace backendTask.Repository
                         adress = userOrder.Address
                     };
                 }
+                else
+                {
+                    throw new BadRequestException("Пользователь не найден");
+                }
             }
             else
             {
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
-            throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");
         }
 
         public async Task createOrderDTO(string token, CreateOrderDTO createOrderDTO)
@@ -81,7 +84,7 @@ namespace backendTask.Repository
 
                     if (!userCartItems.Any())
                     {
-                        throw new Exception(message:"Корзина пуста"); 
+                        throw new BadRequestException("Корзина пуста");
                     }
 
                     foreach (var cartItem in userCartItems)
@@ -113,12 +116,15 @@ namespace backendTask.Repository
                     _db.Orders.Add(newOrder);
                     await _db.SaveChangesAsync();
                 }
+                else
+                {
+                    throw new BadRequestException("Пользователь не найден");
+                }
             }
             else
             {
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
-            throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");
         }
         public async Task<List<GetListOrdersDTO>> getListOrdersDTO(string token)
         {
@@ -143,25 +149,28 @@ namespace backendTask.Repository
                         price = order.Price,
                     }).ToList();
 
-                    return listOrdersDTO;
+                    if(listOrdersDTO.Count > 0)
+                    {
+                        return listOrdersDTO;
+                    }
+                    else
+                    {
+                        throw new BadRequestException("Ваш список заказов пуст");
+                    }
+                }
+                else
+                {
+                    throw new BadRequestException("Пользователь не найден");
                 }
             }
             else
             {
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
-            return new List<GetListOrdersDTO>();
         }
         public async Task<ConfirmOrderStatusDTO> confirmOrderStatus(string token, Guid Id)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtToken = tokenHandler.ReadJwtToken(token);
-            string email = "";
-
-            if (jwtToken.Payload.TryGetValue("email", out var emailObj) && emailObj is string emailValue)
-            {
-                email = emailValue;
-            }
+            string email = _tokenHelper.GetUserEmailFromToken(token);
 
             if (!string.IsNullOrEmpty(email))
             {
@@ -177,13 +186,21 @@ namespace backendTask.Repository
                         order.Status = OrderStatus.Delivered;
                         await _db.SaveChangesAsync();
                     }
+                    else
+                    {
+                        throw new BadRequestException("Заказ не найден");
+                    }
+                }
+                else
+                {
+                    throw new BadRequestException("Пользователь не найден");
                 }
             }
             else
             {
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
-            throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");
+            throw new BadRequestException("Что-то пошло не так повторите позже");
         }
     }
 }

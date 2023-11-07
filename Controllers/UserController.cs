@@ -2,16 +2,9 @@
 using backendTask.DataBase;
 using backendTask.DataBase.Dto.UserDTO;
 using backendTask.DBContext.Models;
-using backendTask.InformationHelps;
-using backendTask.Repository;
 using backendTask.Repository.IRepository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using System.Collections.Specialized;
-using System.Net;
-using System.Security.Claims;
-
 namespace backendTask.Controllers
 {
     [Route("/")]
@@ -61,7 +54,9 @@ namespace backendTask.Controllers
         }
         [Authorize(Policy = "TokenNotInBlackList")]
         [HttpGet("Logout")]
+        [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> Logout()
         {
             string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
