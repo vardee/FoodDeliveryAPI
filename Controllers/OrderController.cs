@@ -28,7 +28,7 @@ namespace backendTask.Controllers
                 return Ok(await _orderRepo.getOrderById(token, Id));
             }
 
-            throw new Unauthorized("Данный пользователь не авторизован");
+            throw new UnauthorizedException("Данный пользователь не авторизован");
         }
         [Authorize(Policy = "TokenNotInBlackList")]
         [HttpPost("order")]
@@ -44,7 +44,7 @@ namespace backendTask.Controllers
                 return Ok();
             }
 
-            throw new Unauthorized("Данный пользователь не авторизован");
+            throw new UnauthorizedException("Данный пользователь не авторизован");
         }
         [Authorize(Policy = "TokenNotInBlackList")]
         [HttpGet("order")]
@@ -58,7 +58,7 @@ namespace backendTask.Controllers
                 return Ok(await _orderRepo.getListOrdersDTO(token));
             }
 
-            throw new Unauthorized("Данный пользователь не авторизован");
+            throw new UnauthorizedException("Данный пользователь не авторизован");
         }
         [Authorize(Policy = "TokenNotInBlackList")]
         [HttpPost ("order/{Id:guid}/status")]
@@ -72,7 +72,7 @@ namespace backendTask.Controllers
                 return Ok(await _orderRepo.confirmOrderStatus(token,Id));
             }
 
-            throw new Unauthorized("Данный пользователь не авторизован");
+            throw new UnauthorizedException("Данный пользователь не авторизован");
         }
     }
 }

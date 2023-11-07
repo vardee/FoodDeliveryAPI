@@ -28,7 +28,7 @@ namespace backendTask.Controllers
                 return Ok(result);
             }
 
-            throw new Unauthorized("Данный пользователь не авторизован");
+            throw new UnauthorizedException("Данный пользователь не авторизован");
         }
         [Authorize(Policy = "TokenNotInBlackList")]
         [HttpPost("AddToUserCart/{Id:guid}")]
@@ -42,7 +42,7 @@ namespace backendTask.Controllers
                 return Ok();
             }
 
-            throw new Unauthorized("Данный пользователь не авторизован");
+            throw new UnauthorizedException("Данный пользователь не авторизован");
         }
 
         [Authorize(Policy = "TokenNotInBlackList")]
@@ -57,7 +57,7 @@ namespace backendTask.Controllers
                 return Ok();
             }
 
-            throw new Unauthorized("Данный пользователь не авторизован");
+            throw new UnauthorizedException("Данный пользователь не авторизован");
         }
 
     }

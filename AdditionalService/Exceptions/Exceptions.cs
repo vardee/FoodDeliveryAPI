@@ -1,5 +1,14 @@
 ﻿using System.Net;
 
+public class Exceptions : Exception
+{
+    public HttpStatusCode StatusCode { get; }
+
+    public Exceptions(HttpStatusCode statusCode, string message) : base(message)
+    {
+        StatusCode = statusCode;
+    }
+}
 public class BadRequestException : Exception
 {
     public BadRequestException(string message) : base(message)
@@ -12,22 +21,22 @@ public class InternalServerErrorException : Exception
     {
     }
 }
-public class Unauthorized : Exception
+public class UnauthorizedException : Exception
 {
-    public Unauthorized(string message) : base(message)
+    public UnauthorizedException(string message) : base(message)
     {
     }
 }
 
-public class Forbidden : Exception
+public class ForbiddenException : Exception
 {
-    public Forbidden(string message) : base(message)
+    public ForbiddenException(string message) : base(message)
     {
     }
 }
-public class NotFound : Exception
+public class NotFoundException : Exception
 {
-    public NotFound(string message) : base(message)
+    public NotFoundException(string message) : base(message)
     {
     }
 }

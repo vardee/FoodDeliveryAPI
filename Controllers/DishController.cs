@@ -44,7 +44,7 @@ namespace backendTask.Controllers
                 return Ok(await _ratingRepo.checkUserSetRating(token, Id));
             }
 
-            throw new Unauthorized("Данный пользователь не авторизован");
+            throw new UnauthorizedException("Данный пользователь не авторизован");
         }
 
         [Authorize(Policy = "TokenNotInBlackList")]
@@ -59,7 +59,7 @@ namespace backendTask.Controllers
                 return Ok();
             }
 
-            throw new Unauthorized("Данный пользователь не авторизован");
+            throw new UnauthorizedException("Данный пользователь не авторизован");
         }
     }
 }

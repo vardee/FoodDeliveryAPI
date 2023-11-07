@@ -46,8 +46,9 @@ namespace backendTask.Repository
             }
             else
             {
-                throw new BadRequestException("Неправильный Email");
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
+            throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");
         }
         public async Task AddToUserCartDTO(string token, Guid dishId)
         {
@@ -87,7 +88,7 @@ namespace backendTask.Repository
             }
             else
             {
-                throw new BadRequestException("Неправильный Email");
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
 
             throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");
@@ -122,7 +123,7 @@ namespace backendTask.Repository
             }
             else
             {
-                throw new BadRequestException("Неправильный Email");
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
 
             throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");

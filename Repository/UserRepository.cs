@@ -53,11 +53,7 @@ namespace backendTask.Repository
 
             if (user == null || !HashPassword.VerifyPassword(loginRequestDTO.password, user.Password))
             {
-                return new LoginResponseDTO()
-                {
-                    token = ""
-                };
-                throw new BadRequestException("Неправильный Email или пароль ");
+                throw new BadRequestException("Неправильный Email или пароль");
             }
 
             var token = _tokenHelper.GenerateToken(user);
@@ -99,8 +95,12 @@ namespace backendTask.Repository
         }
         public async Task Logout(string token)
         {
-            await _db.BlackListTokens.AddAsync(new BlackListTokens{BlackToken = token});
-            await _db.SaveChangesAsync();
+            string email = _tokenHelper.GetUserEmailFromToken(token);
+            if (!string.IsNullOrEmpty(email))
+            {
+                await _db.BlackListTokens.AddAsync(new BlackListTokens { BlackToken = token });
+                await _db.SaveChangesAsync();
+            }
         }
         public async Task<GetProfileDTO> GetProfileDto(string token)
         {
@@ -125,7 +125,7 @@ namespace backendTask.Repository
             }
             else
             {
-                throw new BadRequestException("Неправильный Email");
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
 
             throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");
@@ -169,7 +169,7 @@ namespace backendTask.Repository
             }
             else
             {
-                throw new BadRequestException("Неправильный Email");
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
             throw new InternalServerErrorException("Произошла ошибка, повторите запрос позже");
         }

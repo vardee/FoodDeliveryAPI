@@ -1,6 +1,7 @@
 ﻿using backendTask.AdditionalService;
 using backendTask.DataBase;
 using backendTask.DataBase.Dto.UserDTO;
+using backendTask.DBContext.Models;
 using backendTask.InformationHelps;
 using backendTask.Repository;
 using backendTask.Repository.IRepository;
@@ -25,6 +26,9 @@ namespace backendTask.Controllers
             _db = db;
         }
         [HttpPost("Login")]
+        [ProducesResponseType(typeof(LoginResponseDTO), 200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO loginRequestDTO)
         {
             var loginResponse = await _userRepo.Login(loginRequestDTO);
@@ -46,6 +50,9 @@ namespace backendTask.Controllers
 
 
         [HttpPost("Register")]
+        [ProducesResponseType(typeof(RegistrationResponseDTO), 200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> Register([FromBody] RegistrationRequestDTO registrationRequestDTO)
         {
             var registrationResponse = await _userRepo.Register(registrationRequestDTO);
@@ -54,6 +61,7 @@ namespace backendTask.Controllers
         }
         [Authorize(Policy = "TokenNotInBlackList")]
         [HttpGet("Logout")]
+        [ProducesResponseType(typeof(Error), 401)]
         public async Task<IActionResult> Logout()
         {
             string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
@@ -63,11 +71,16 @@ namespace backendTask.Controllers
                 await _userRepo.Logout(token);
                 return Ok();
             }
-            throw new Unauthorized("Данный пользователь не авторизован");
+            throw new UnauthorizedException("Данный пользователь не авторизован");
 
         }
         [Authorize(Policy = "TokenNotInBlackList")]
         [HttpGet("GetProfile")]
+
+        [ProducesResponseType(typeof(GetProfileDTO), 200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> GetProfile()
         {
             string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
@@ -76,10 +89,14 @@ namespace backendTask.Controllers
                 string token = authorizationHeader.Substring("Bearer ".Length);
                 return Ok( await _userRepo.GetProfileDto(token));
             }
-            throw new Unauthorized("Данный пользователь не авторизован");
+            throw new UnauthorizedException("Данный пользователь не авторизован");
         }
         [Authorize(Policy = "TokenNotInBlackList")]
         [HttpPut("EditProfile")]
+        [ProducesResponseType(typeof(EditProfileRequestDTO), 200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> editProfile([FromBody] EditProfileRequestDTO editProfileRequestDTO)
         {
             
@@ -91,7 +108,7 @@ namespace backendTask.Controllers
                 return Ok();
             }
 
-            throw new Unauthorized("Данный пользователь не авторизован");
+            throw new UnauthorizedException("Данный пользователь не авторизован");
         }
 
     }
