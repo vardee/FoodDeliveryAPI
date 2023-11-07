@@ -1,5 +1,7 @@
-﻿using backendTask.DataBase.Dto;
-using backendTask.DataBase.Models;
+﻿using backendTask.DataBase;
+using backendTask.DataBase.Dto;
+using backendTask.DataBase.Dto.CartDTO;
+using backendTask.DataBase.Dto.OrderDTO;
 using backendTask.Enums;
 using backendTask.Migrations;
 using backendTask.Repository.IRepository;
@@ -12,19 +14,15 @@ namespace backendTask.Repository
     public class OrderRepository : IOrderRepository
     {
         private readonly AppDBContext _db;
-        public OrderRepository(AppDBContext db, IConfiguration configuration)
+        private readonly TokenHelper _tokenHelper;
+        public OrderRepository(AppDBContext db, IConfiguration configuration, TokenHelper tokenHelper)
         {
             _db = db;
+            _tokenHelper = tokenHelper;
         }
         public async Task<GetOrderByIdDTO> getOrderById(string token, Guid Id)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtToken = tokenHandler.ReadJwtToken(token);
-            string email = "";
-            if (jwtToken.Payload.TryGetValue("email", out var emailObj) && emailObj is string emailValue)
-            {
-                email = emailValue;
-            }
+            string email = _tokenHelper.GetUserEmailFromToken(token);
 
             if (!string.IsNullOrEmpty(email))
             {
@@ -57,20 +55,20 @@ namespace backendTask.Repository
                         adress = userOrder.Address
                     };
                 }
+                else
+                {
+                    throw new BadRequestException("Пользователь не найден");
+                }
             }
-            return null;
+            else
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
         }
 
         public async Task createOrderDTO(string token, CreateOrderDTO createOrderDTO)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtToken = tokenHandler.ReadJwtToken(token);
-            string email = "";
-
-            if (jwtToken.Payload.TryGetValue("email", out var emailObj) && emailObj is string emailValue)
-            {
-                email = emailValue;
-            }
+            string email = _tokenHelper.GetUserEmailFromToken(token);
 
             if (!string.IsNullOrEmpty(email))
             {
@@ -86,7 +84,7 @@ namespace backendTask.Repository
 
                     if (!userCartItems.Any())
                     {
-                        throw new Exception(message:"Корзина пуста"); 
+                        throw new BadRequestException("Корзина пуста");
                     }
 
                     foreach (var cartItem in userCartItems)
@@ -118,18 +116,19 @@ namespace backendTask.Repository
                     _db.Orders.Add(newOrder);
                     await _db.SaveChangesAsync();
                 }
+                else
+                {
+                    throw new BadRequestException("Пользователь не найден");
+                }
+            }
+            else
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
         }
         public async Task<List<GetListOrdersDTO>> getListOrdersDTO(string token)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtToken = tokenHandler.ReadJwtToken(token);
-            string email = "";
-
-            if (jwtToken.Payload.TryGetValue("email", out var emailObj) && emailObj is string emailValue)
-            {
-                email = emailValue;
-            }
+            string email = _tokenHelper.GetUserEmailFromToken(token);
 
             if (!string.IsNullOrEmpty(email))
             {
@@ -150,21 +149,28 @@ namespace backendTask.Repository
                         price = order.Price,
                     }).ToList();
 
-                    return listOrdersDTO;
+                    if(listOrdersDTO.Count > 0)
+                    {
+                        return listOrdersDTO;
+                    }
+                    else
+                    {
+                        throw new BadRequestException("Ваш список заказов пуст");
+                    }
+                }
+                else
+                {
+                    throw new BadRequestException("Пользователь не найден");
                 }
             }
-            return new List<GetListOrdersDTO>();
+            else
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
         }
         public async Task<ConfirmOrderStatusDTO> confirmOrderStatus(string token, Guid Id)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtToken = tokenHandler.ReadJwtToken(token);
-            string email = "";
-
-            if (jwtToken.Payload.TryGetValue("email", out var emailObj) && emailObj is string emailValue)
-            {
-                email = emailValue;
-            }
+            string email = _tokenHelper.GetUserEmailFromToken(token);
 
             if (!string.IsNullOrEmpty(email))
             {
@@ -172,7 +178,6 @@ namespace backendTask.Repository
 
                 if (user != null)
                 {
-                    // Найдите заказ пользователя по UserId и OrderId
                     var order = await _db.Orders.FirstOrDefaultAsync(od => od.UserId == user.Id && od.OrderId == Id);
 
                     if (order != null)
@@ -181,9 +186,21 @@ namespace backendTask.Repository
                         order.Status = OrderStatus.Delivered;
                         await _db.SaveChangesAsync();
                     }
+                    else
+                    {
+                        throw new BadRequestException("Заказ не найден");
+                    }
+                }
+                else
+                {
+                    throw new BadRequestException("Пользователь не найден");
                 }
             }
-            return null;
+            else
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+            throw new BadRequestException("Что-то пошло не так повторите позже");
         }
     }
 }

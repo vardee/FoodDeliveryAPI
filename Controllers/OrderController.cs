@@ -1,78 +1,94 @@
-﻿using backendTask.DataBase.Dto;
-using backendTask.DataBase.Models;
+﻿using backendTask.DataBase.Dto.OrderDTO;
 using backendTask.Repository.IRepository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using backendTask.DBContext.Models;
+using backendTask.DataBase;
 
 namespace backendTask.Controllers
 {
+    [Authorize(Policy = "TokenNotInBlackList")]
     public class OrderController : Controller
     {
         private readonly IOrderRepository _orderRepo;
+        private readonly TokenHelper _tokenHelper;
         private readonly AppDBContext _db;
 
-        public OrderController(IOrderRepository orderRepo, AppDBContext db)
+        public OrderController(IOrderRepository orderRepo, TokenHelper tokenHelper,AppDBContext db)
         {
             _orderRepo = orderRepo;
+            _tokenHelper = tokenHelper;
             _db = db;
         }
 
-        [Authorize(Policy = "TokenNotInBlackList")]
         [HttpGet("order/{Id:guid}")]
+        [ProducesResponseType(typeof(GetOrderByIdDTO), 200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> GetOrderById(Guid Id)
         {
-            string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
-            if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer "))
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
             {
-                string token = authorizationHeader.Substring("Bearer ".Length);
-                return Ok(await _orderRepo.getOrderById(token, Id));
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
 
-            return BadRequest(new { message = "Плохой профиль бро" });
+            return Ok(await _orderRepo.getOrderById(token, Id));
         }
-        [Authorize(Policy = "TokenNotInBlackList")]
+
         [HttpPost("order")]
+        [ProducesResponseType(typeof(CreateOrderDTO), 200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDTO createOrderDTO)
         {
-            string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
-            if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer "))
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
             {
-                string token = authorizationHeader.Substring("Bearer ".Length);
-
-                await _orderRepo.createOrderDTO(token, createOrderDTO);
-
-                return Ok(new {message = "Заказ успешно создан"});
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
 
-            return BadRequest(new { message = "Плохой профиль бро" });
+            await _orderRepo.createOrderDTO(token, createOrderDTO);
+
+            return Ok();
         }
-        [Authorize(Policy = "TokenNotInBlackList")]
+
         [HttpGet("order")]
+        [ProducesResponseType(typeof(GetListOrdersDTO), 200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> GetListOrders()
         {
-            string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
-            if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer "))
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
             {
-                string token = authorizationHeader.Substring("Bearer ".Length);
-
-                return Ok(await _orderRepo.getListOrdersDTO(token));
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
 
-            return BadRequest(new { message = "Плохой профиль бро" });
+            return Ok(await _orderRepo.getListOrdersDTO(token));
         }
-        [Authorize(Policy = "TokenNotInBlackList")]
-        [HttpPost ("order/{Id:guid}/status")]
+
+        [HttpPost("order/{Id:guid}/status")]
+        [ProducesResponseType(typeof(ConfirmOrderStatusDTO), 200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> ConfirmOrderStatusDTO(Guid Id)
         {
-            string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
-            if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer "))
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
             {
-                string token = authorizationHeader.Substring("Bearer ".Length);
-
-                return Ok(await _orderRepo.confirmOrderStatus(token,Id));
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
 
-            return BadRequest(new { message = "Плохой профиль бро" });
+            return Ok(await _orderRepo.confirmOrderStatus(token, Id));
         }
     }
 }

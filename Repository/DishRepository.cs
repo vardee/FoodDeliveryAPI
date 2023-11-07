@@ -1,10 +1,10 @@
-﻿using backendTask.DataBase.Dto;
+﻿using backendTask.DataBase;
+using backendTask.DataBase.Dto;
+using backendTask.DataBase.Dto.DishDTO;
 using backendTask.DataBase.Models;
 using backendTask.Enums;
 using backendTask.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using System.Collections.Generic;
 namespace backendTask.Repository
 {
     public class DishRepository: IDishRepository
@@ -57,7 +57,7 @@ namespace backendTask.Repository
 
             if (currentDishes.Count == 0)
             {
-                throw new Exception(message: "Page not found");
+                throw new BadRequestException("Страница не найдена");
             }
 
             return new GetDishResponseDTO
@@ -73,11 +73,10 @@ namespace backendTask.Repository
         }
         public async Task<GetDishByIdDTO> GetDishByIdDTO(Guid CurrentId)
         {
-            Console.WriteLine(CurrentId);
             var currentDish = await _db.Dishes.FirstOrDefaultAsync(d => d.Id == CurrentId);
             if(currentDish == null)
             {
-                throw new Exception(message: "Данного блюда нет в списке");
+                throw new BadRequestException("Данного блюда нет в списке блюд");
             }
             else
             {

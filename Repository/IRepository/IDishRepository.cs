@@ -1,4 +1,4 @@
-﻿using backendTask.DataBase.Dto;
+﻿using backendTask.DataBase.Dto.DishDTO;
 using backendTask.Enums;
 
 namespace backendTask.Repository.IRepository
