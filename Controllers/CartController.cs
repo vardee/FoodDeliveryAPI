@@ -12,11 +12,13 @@ namespace backendTask.Controllers
     {
         private readonly ICartRepository _cartRepo;
         private readonly AppDBContext _db;
+        private readonly TokenHelper _tokenHelper;
 
-        public CartController(ICartRepository cartRepo, AppDBContext db)
+        public CartController(ICartRepository cartRepo, AppDBContext db,TokenHelper tokenHelper)
         {
             _cartRepo = cartRepo;
             _db = db;
+            _tokenHelper = tokenHelper;
         }
 
         [Authorize(Policy = "TokenNotInBlackList")]
@@ -27,15 +29,14 @@ namespace backendTask.Controllers
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> GetUserCart()
         {
-            string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
-            if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer "))
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
             {
-                string token = authorizationHeader.Substring("Bearer ".Length);
-                var result = await _cartRepo.GetUserCartDTO(token);
-                return Ok(result);
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
 
-            throw new UnauthorizedException("Данный пользователь не авторизован");
+            var result = await _cartRepo.GetUserCartDTO(token);
+            return Ok(result);
         }
         [Authorize(Policy = "TokenNotInBlackList")]
         [HttpPost("AddToUserCart/{Id:guid}")]
@@ -44,15 +45,13 @@ namespace backendTask.Controllers
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> AddToUserCartDTO(Guid Id)
         {
-            string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
-            if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer "))
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
             {
-                string token = authorizationHeader.Substring("Bearer ".Length);
-                await _cartRepo.AddToUserCartDTO(token, Id);
-                return Ok();
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
-
-            throw new UnauthorizedException("Данный пользователь не авторизован");
+            await _cartRepo.AddToUserCartDTO(token, Id);
+            return Ok();
         }
 
         [Authorize(Policy = "TokenNotInBlackList")]
@@ -62,15 +61,13 @@ namespace backendTask.Controllers
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> DeleteFromUserCartDTO(Guid Id)
         {
-            string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
-            if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer "))
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
             {
-                string token = authorizationHeader.Substring("Bearer ".Length);
-                await _cartRepo.DeleteFromUserCartDTO(token, Id);
-                return Ok();
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
-
-            throw new UnauthorizedException("Данный пользователь не авторизован");
+            await _cartRepo.DeleteFromUserCartDTO(token, Id);
+            return Ok();
         }
 
     }

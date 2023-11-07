@@ -16,13 +16,15 @@ namespace backendTask.Controllers
     {
         private readonly IDishRepository _dishRepo;
         private readonly IRatingRepository _ratingRepo;
+        private readonly TokenHelper _tokenHelper;
         private readonly AppDBContext _db;
 
-        public DishController(IDishRepository dishRepo, AppDBContext db, IRatingRepository ratingRepo)
+        public DishController(IDishRepository dishRepo, AppDBContext db, IRatingRepository ratingRepo, TokenHelper tokenHelper)
         {
             _dishRepo = dishRepo;
             _db = db;
             _ratingRepo = ratingRepo;
+            _tokenHelper = tokenHelper;
         }
         [HttpGet("dish")]
         [ProducesResponseType(typeof(GetDishResponseDTO), 200)]
@@ -51,14 +53,12 @@ namespace backendTask.Controllers
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> checkUserSetRating(Guid Id)
         {
-            string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
-            if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer "))
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
             {
-                string token = authorizationHeader.Substring("Bearer ".Length);
-                return Ok(await _ratingRepo.checkUserSetRating(token, Id));
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
-
-            throw new UnauthorizedException("Данный пользователь не авторизован");
+            return Ok(await _ratingRepo.checkUserSetRating(token, Id));
         }
 
         [Authorize(Policy = "TokenNotInBlackList")]
@@ -69,15 +69,13 @@ namespace backendTask.Controllers
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> setDishRating(Guid Id,double Rating)
         {
-            string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
-            if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer "))
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
             {
-                string token = authorizationHeader.Substring("Bearer ".Length);
-                await _ratingRepo.setDishRating(token, Id, Rating);
-                return Ok();
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
-
-            throw new UnauthorizedException("Данный пользователь не авторизован");
+            await _ratingRepo.setDishRating(token, Id, Rating);
+            return Ok();
         }
     }
 }

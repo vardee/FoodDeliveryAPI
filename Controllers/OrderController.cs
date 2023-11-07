@@ -7,6 +7,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using backendTask.DBContext.Models;
+using backendTask.DataBase;
 
 namespace backendTask.Controllers
 {
@@ -15,11 +16,13 @@ namespace backendTask.Controllers
     {
         private readonly IOrderRepository _orderRepo;
         private readonly TokenHelper _tokenHelper;
+        private readonly AppDBContext _db;
 
-        public OrderController(IOrderRepository orderRepo, TokenHelper tokenHelper)
+        public OrderController(IOrderRepository orderRepo, TokenHelper tokenHelper,AppDBContext db)
         {
             _orderRepo = orderRepo;
             _tokenHelper = tokenHelper;
+            _db = db;
         }
 
         [HttpGet("order/{Id:guid}")]
