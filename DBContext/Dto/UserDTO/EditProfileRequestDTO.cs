@@ -13,6 +13,6 @@ namespace backendTask.DataBase.Dto.UserDTO
         [Phone]
         public string Phone { get; set; }
 
-        public string Address { get; set; }
+        public Guid Address { get; set; }
     }
 }

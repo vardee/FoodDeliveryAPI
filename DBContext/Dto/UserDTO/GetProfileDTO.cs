@@ -15,6 +15,6 @@ namespace backendTask.DataBase.Dto.UserDTO
 
         public string Email { get; set; }
 
-        public string Address { get; set; }
+        public Guid Address { get; set; }
     }
 }

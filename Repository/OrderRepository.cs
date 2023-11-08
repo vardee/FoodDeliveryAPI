@@ -1,9 +1,11 @@
-﻿using backendTask.DataBase;
+﻿using backendTask.AdditionalService;
+using backendTask.DataBase;
 using backendTask.DataBase.Dto;
 using backendTask.DataBase.Dto.CartDTO;
 using backendTask.DataBase.Dto.OrderDTO;
+using backendTask.DataBase.Dto.UserDTO;
+using backendTask.DBContext;
 using backendTask.Enums;
-using backendTask.Migrations;
 using backendTask.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -14,10 +16,12 @@ namespace backendTask.Repository
     public class OrderRepository : IOrderRepository
     {
         private readonly AppDBContext _db;
+        private readonly AddressDBContext _adb;
         private readonly TokenHelper _tokenHelper;
-        public OrderRepository(AppDBContext db, IConfiguration configuration, TokenHelper tokenHelper)
+        public OrderRepository(AppDBContext db, IConfiguration configuration, TokenHelper tokenHelper, AddressDBContext adb)
         {
             _db = db;
+            _adb = adb;
             _tokenHelper = tokenHelper;
         }
         public async Task<GetOrderByIdDTO> getOrderById(string token, Guid Id)
@@ -52,7 +56,7 @@ namespace backendTask.Repository
                         status = userOrder.Status,
                         price = userOrder.Price,
                         dishes = orderedUserDishes,
-                        adress = userOrder.Address
+                        address = userOrder.Address
                     };
                 }
                 else
@@ -73,6 +77,10 @@ namespace backendTask.Repository
             if (!string.IsNullOrEmpty(email))
             {
                 var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+                if (createOrderDTO.address != null && !await AddressChecker.IsAddressNormal(_adb, createOrderDTO.address))
+                {
+                    throw new BadRequestException("Данный адрес не найден, повторите еще раз");
+                }
 
                 if (user != null)
                 {
@@ -101,7 +109,6 @@ namespace backendTask.Repository
                         _db.Carts.Remove(cartItem);
                     }
                     await _db.SaveChangesAsync();
-
                     var newOrder = new Order
                     {
                         OrderId = orderId,
@@ -110,7 +117,7 @@ namespace backendTask.Repository
                         OrderTime = DateTime.UtcNow,
                         Status = OrderStatus.InProcess,
                         Price = totalPrice,
-                        Address = createOrderDTO.AdreessId
+                        Address = createOrderDTO.address.ToString(),
                     };
 
                     _db.Orders.Add(newOrder);

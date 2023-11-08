@@ -16,21 +16,26 @@ using backendTask.Enums;
 using backendTask.InformationHelps;
 using backendTask.DataBase.Dto.UserDTO;
 using backendTask.DataBase;
+using backendTask.DBContext;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Net;
 
 namespace backendTask.Repository
 {
     public class UserRepository : IUserRepository
     {
         private readonly AppDBContext _db;
+        private readonly AddressDBContext _adb;
         private readonly TokenHelper _tokenHelper;
         private string secretKey;
         private string issuer;
         private string audience;
 
 
-        public UserRepository(AppDBContext db, IConfiguration configuration, TokenHelper tokenHelper)
+        public UserRepository(AppDBContext db, IConfiguration configuration, TokenHelper tokenHelper,AddressDBContext adb)
         {
             _db = db;
+            _adb = adb;
             secretKey = configuration.GetValue<string>("AppSettings:Secret");
             issuer = configuration.GetValue<string>("AppSettings:Issuer");
             audience = configuration.GetValue<string>("AppSettings:Audience");
@@ -71,6 +76,11 @@ namespace backendTask.Repository
             {
                 throw new BadRequestException("Данный Email уже используется");
             }
+            if (registraionRequestDTO.Address != null && !await AddressChecker.IsAddressNormal(_adb, registraionRequestDTO.Address))
+            {
+                throw new BadRequestException("Данный адрес не найден, повторите еще раз");
+            }
+
             User user = new User()
             {
                 FullName = registraionRequestDTO.FullName,
@@ -116,6 +126,7 @@ namespace backendTask.Repository
 
                 if (user != null)
                 {
+
                     return new GetProfileDTO
                     {
                         FullName = user.FullName,
@@ -166,9 +177,16 @@ namespace backendTask.Repository
                         user.Phone = editProfileRequestDTO.Phone;
                     }
 
-                    if (!string.IsNullOrEmpty(editProfileRequestDTO.Address))
+                    if (!string.IsNullOrEmpty((editProfileRequestDTO.Address).ToString()))
                     {
-                        user.Address = editProfileRequestDTO.Address;
+                        if (editProfileRequestDTO.Address != null && !await AddressChecker.IsAddressNormal(_adb, editProfileRequestDTO.Address))
+                        {
+                            throw new BadRequestException("Данный адрес не найден, повторите еще раз");
+                        }
+                        else
+                        {
+                            user.Address = editProfileRequestDTO.Address;
+                        }
                     }
 
                     await _db.SaveChangesAsync();
