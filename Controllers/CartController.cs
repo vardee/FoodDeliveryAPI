@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace backendTask.Controllers
 {
+    [Authorize(Policy = "TokenNotInBlackList")]
     public class CartController : Controller
     {
         private readonly ICartRepository _cartRepo;
@@ -21,7 +22,7 @@ namespace backendTask.Controllers
             _tokenHelper = tokenHelper;
         }
 
-        [Authorize(Policy = "TokenNotInBlackList")]
+
         [HttpGet("GetUserCart")]
         [ProducesResponseType(typeof(GetUserCartResponseDTO), 200)]
         [ProducesResponseType(typeof(Error), 400)]
@@ -38,7 +39,6 @@ namespace backendTask.Controllers
             var result = await _cartRepo.GetUserCartDTO(token);
             return Ok(result);
         }
-        [Authorize(Policy = "TokenNotInBlackList")]
         [HttpPost("AddToUserCart/{Id:guid}")]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
@@ -54,7 +54,6 @@ namespace backendTask.Controllers
             return Ok();
         }
 
-        [Authorize(Policy = "TokenNotInBlackList")]
         [HttpDelete("DeleteFromUserCart/{Id:guid}")]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
