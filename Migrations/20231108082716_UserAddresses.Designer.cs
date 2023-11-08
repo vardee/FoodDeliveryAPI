@@ -12,8 +12,8 @@ using backendTask.DataBase;
 namespace backendTask.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20231105103112_OrderedDishes")]
-    partial class OrderedDishes
+    [Migration("20231108082716_UserAddresses")]
+    partial class UserAddresses
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,32 +25,47 @@ namespace backendTask.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("OrderedDishes", b =>
+            modelBuilder.Entity("Order", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Amount")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("DishId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("OrderUserId")
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("DeliveryTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("OrderTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("UserId", "OrderId");
+
+                    b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("OrderedDishes", b =>
+                {
+                    b.Property<Guid>("OrderId")
                         .HasColumnType("uuid");
 
-                    b.Property<double>("Price")
-                        .HasColumnType("double precision");
+                    b.Property<Guid>("DishId")
+                        .HasColumnType("uuid");
 
-                    b.HasKey("Id");
+                    b.Property<int>("Amount")
+                        .HasColumnType("integer");
 
-                    b.HasIndex("DishId");
-
-                    b.HasIndex("OrderId", "OrderUserId");
+                    b.HasKey("OrderId", "DishId");
 
                     b.ToTable("OrderedDishes");
                 });
@@ -119,33 +134,20 @@ namespace backendTask.Migrations
                     b.ToTable("Dishes");
                 });
 
-            modelBuilder.Entity("backendTask.DataBase.Models.Order", b =>
+            modelBuilder.Entity("backendTask.DataBase.Models.Rating", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("DishId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("adress")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("deliveryTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("orderTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<double>("price")
+                    b.Property<double?>("ratingValue")
                         .HasColumnType("double precision");
 
-                    b.Property<int>("status")
-                        .HasColumnType("integer");
+                    b.HasKey("DishId", "UserId");
 
-                    b.HasKey("Id", "UserId");
-
-                    b.ToTable("Orders");
+                    b.ToTable("Ratings");
                 });
 
             modelBuilder.Entity("backendTask.DataBase.Models.User", b =>
@@ -154,12 +156,11 @@ namespace backendTask.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("Address")
+                        .HasColumnType("uuid");
 
-                    b.Property<DateOnly>("BirthDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("BirthDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -185,25 +186,6 @@ namespace backendTask.Migrations
                     b.HasIndex("Email");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("OrderedDishes", b =>
-                {
-                    b.HasOne("backendTask.DataBase.Models.Dish", "Dish")
-                        .WithMany()
-                        .HasForeignKey("DishId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("backendTask.DataBase.Models.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderId", "OrderUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Dish");
-
-                    b.Navigation("Order");
                 });
 #pragma warning restore 612, 618
         }

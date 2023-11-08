@@ -1,5 +1,4 @@
 ﻿using backendTask.DataBase.Models;
-using backendTask.Migrations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;

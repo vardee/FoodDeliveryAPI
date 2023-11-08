@@ -153,9 +153,8 @@ namespace backendTask.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("Address")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("BirthDate")
                         .HasColumnType("timestamp with time zone");
