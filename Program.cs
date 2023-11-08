@@ -1,5 +1,5 @@
-using backendTask.Authorization;
-using backendTask.DataBase.Models;
+using backendTask.AdditionalService;
+using backendTask.DataBase;
 using backendTask.InformationHelps;
 using backendTask.Repository;
 using backendTask.Repository.IRepository;
@@ -10,20 +10,29 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using backendTask.DBContext;
+using backendTask.AdditionalService.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-
-builder.Services.AddDbContext<AppDBContext>(optins =>
-optins.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<AppDBContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<AddressDBContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("AddressConnection")));
 builder.Services.AddControllers();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IDishRepository, DishRepository>();
 builder.Services.AddTransient<ICartRepository, CartRepository>();
-builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddTransient<IOrderRepository, OrderRepository>();
+builder.Services.AddTransient<IRatingRepository, RatingRepository>();
+builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<TokenHelper>();
+builder.Services.AddSingleton<EnumTranscription>(provider => new EnumTranscription("someStringValue"));
+builder.Services.AddEndpointsApiExplorer();
+
 
 
 
@@ -58,7 +67,7 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
-        Description ="",
+        Description = "",
         Name = "Authorization",
         In = Microsoft.OpenApi.Models.ParameterLocation.Header,
         Scheme = "Bearer"
@@ -81,7 +90,6 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -90,7 +98,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

@@ -1,4 +1,4 @@
-﻿using backendTask.DataBase.Dto;
+﻿using backendTask.DataBase.Dto.CartDTO;
 
 namespace backendTask.Repository.IRepository
 {

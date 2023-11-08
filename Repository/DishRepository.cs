@@ -1,10 +1,10 @@
-﻿using backendTask.DataBase.Dto;
+﻿using backendTask.DataBase;
+using backendTask.DataBase.Dto;
+using backendTask.DataBase.Dto.DishDTO;
 using backendTask.DataBase.Models;
 using backendTask.Enums;
 using backendTask.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using System.Collections.Generic;
 namespace backendTask.Repository
 {
     public class DishRepository: IDishRepository
@@ -18,15 +18,28 @@ namespace backendTask.Repository
         public async Task<GetDishResponseDTO> GetDishResponseDTO(DishCategory dishCategory, bool vegetarian, DishSorting sorting, int page)
         {
             List<Dish> dishes = _db.Dishes.ToList();
+            if (page <= 0)
+            {
+                throw new NotFoundException("Данная страница не найдена");
+            }
 
             if (dishCategory != null)
             {
                 dishes = dishes.Where(d => d.Category == dishCategory).ToList();
             }
 
-            if (!vegetarian)
+            if (vegetarian == false)
             {
-                dishes = dishes.Where(d => d.Vegetarian == true || d.Vegetarian == false).ToList();
+                dishes = dishes.Where(d =>  d.Vegetarian == false).ToList();
+            }
+            else
+            {
+                dishes = dishes.Where(d => d.Vegetarian == true).ToList();
+            }
+
+            if (dishes.Count == 0)
+            {
+                throw new BadRequestException("Нет данных, удовлетворяющих вашим критериям");
             }
 
             switch (sorting)
@@ -51,14 +64,15 @@ namespace backendTask.Repository
                     break;
             }
 
-            int pageSize = 10;
+            int pageSize = 6;
             int skipAmount = (page - 1) * pageSize;
-            List<Dish> currentDishes = dishes.Skip(skipAmount).Take(pageSize).ToList();
 
-            if (currentDishes.Count == 0)
+            if (skipAmount >= dishes.Count)
             {
-                throw new Exception(message: "Page not found");
+                throw new NotFoundException("Данная страница не найдена");
             }
+
+            List<Dish> currentDishes = dishes.Skip(skipAmount).Take(pageSize).ToList();
 
             return new GetDishResponseDTO
             {
@@ -66,18 +80,17 @@ namespace backendTask.Repository
                 PageInformation = new PageInformationDTO
                 {
                     size = pageSize,
-                    count = page,
+                    count = (int)Math.Ceiling((double)dishes.Count / pageSize),
                     current = page
                 }
             };
         }
         public async Task<GetDishByIdDTO> GetDishByIdDTO(Guid CurrentId)
         {
-            Console.WriteLine(CurrentId);
             var currentDish = await _db.Dishes.FirstOrDefaultAsync(d => d.Id == CurrentId);
             if(currentDish == null)
             {
-                throw new Exception(message: "Данного блюда нет в списке");
+                throw new BadRequestException("Данного блюда нет в списке блюд");
             }
             else
             {

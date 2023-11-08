@@ -1,5 +1,4 @@
 ﻿using backendTask.AdditionalService;
-using backendTask.DataBase.Dto;
 using backendTask.DataBase.Models;
 using backendTask.Repository.IRepository;
 using Microsoft.AspNetCore.Identity;
@@ -13,26 +12,35 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.AccessControl;
 using System.Security.Claims;
 using System.Text;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
 using backendTask.Enums;
-using backendTask.InformationHelps;
+using backendTask.DataBase.Dto.UserDTO;
+using backendTask.DataBase;
+using backendTask.DBContext;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Net;
+using backendTask.DBContext.Models;
+using backendTask.InformationHelps.Validator;
 
 namespace backendTask.Repository
 {
     public class UserRepository : IUserRepository
     {
         private readonly AppDBContext _db;
+        private readonly AddressDBContext _adb;
+        private readonly TokenHelper _tokenHelper;
         private string secretKey;
         private string issuer;
         private string audience;
 
-        public UserRepository(AppDBContext db, IConfiguration configuration)
+
+        public UserRepository(AppDBContext db, IConfiguration configuration, TokenHelper tokenHelper,AddressDBContext adb)
         {
             _db = db;
+            _adb = adb;
             secretKey = configuration.GetValue<string>("AppSettings:Secret");
             issuer = configuration.GetValue<string>("AppSettings:Issuer");
             audience = configuration.GetValue<string>("AppSettings:Audience");
+            _tokenHelper = tokenHelper;
         }
 
         public bool IsUniqueUser(string Email)
@@ -49,31 +57,19 @@ namespace backendTask.Repository
         {
             var user = _db.Users.FirstOrDefault(u => u.Email == loginRequestDTO.email);
 
-            if (user == null || !HashPassword.VerifyPassword(loginRequestDTO.password, user.Password))
+            if (user == null)
             {
-                return new LoginResponseDTO()
-                {
-                    token = "",
-                    email = null
-                };
+                throw new BadRequestException("Неправильный Email или пароль");
             }
-            var claims = new List<Claim>{new Claim(ClaimTypes.Email, user.Email) };
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(secretKey);
-
-            var tokenDescriptor = new SecurityTokenDescriptor
+            else if(!HashPassword.VerifyPassword(loginRequestDTO.password, user.Password))
             {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(1),
-                Issuer = issuer,
-                Audience = audience,
-                SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
+                throw new BadRequestException("Неправильный Email или пароль");
+            }
+
+            var token = _tokenHelper.GenerateToken(user);
             LoginResponseDTO loginResponseDTO = new LoginResponseDTO()
             {
-                token = tokenHandler.WriteToken(token),
-                email = user
+                token = token
             };
             return loginResponseDTO;
         }
@@ -83,7 +79,23 @@ namespace backendTask.Repository
             var IsTrueUser = _db.Users.FirstOrDefault(u => registraionRequestDTO.Email == u.Email);
             if (IsTrueUser != null)
             {
-                throw new Exception(message: "Email is already in use");
+                throw new BadRequestException("Данный Email уже используется");
+            }
+            if (registraionRequestDTO.Address != null && !await AddressChecker.IsAddressNormal(_adb, registraionRequestDTO.Address))
+            {
+                throw new BadRequestException("Данный адрес не найден, повторите еще раз");
+            }
+            if (!DateOfBirthValidator.ValidateDateOfBirth(registraionRequestDTO.BirthDate))
+            {
+                throw new BadRequestException("Неверная дата рождения. Вам должно быть не менее 13 лет и не более 100 лет.");
+            }
+            if (!PasswordValidator.ValidatePassword(registraionRequestDTO.Password))
+            {
+                throw new BadRequestException("Пароль не соответсвует требованиям, должна быть минимум одна заглавная буква, семь обычных букв, минимум одна цифра и один спец.символ");
+            }
+            if (!PhoneValidator.IsValidPhoneNumber(registraionRequestDTO.Phone))
+            {
+                throw new BadRequestException("Данный формат номера телефона не валиден");
             }
             User user = new User()
             {
@@ -97,41 +109,32 @@ namespace backendTask.Repository
             };
             _db.Users.Add(user);
             await _db.SaveChangesAsync();
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(secretKey);
-            var claims = new List<Claim>{new Claim(ClaimTypes.Email, user.Email)};
 
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(1),
-                Issuer = issuer,
-                Audience = audience,
-                SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var token = _tokenHelper.GenerateToken(user);
+
             RegistrationResponseDTO registrationResponseDTO = new RegistrationResponseDTO()
             {
-                token = tokenHandler.WriteToken(token),
-                email = user
+                token = token
             };
 
             return registrationResponseDTO;
         }
         public async Task Logout(string token)
         {
-            await _db.BlackListTokens.AddAsync(new BlackListTokens{BlackToken = token});
-            await _db.SaveChangesAsync();
+            string email = _tokenHelper.GetUserEmailFromToken(token);
+            if (!string.IsNullOrEmpty(email))
+            {
+                await _db.BlackListTokens.AddAsync(new BlackListTokens { BlackToken = token });
+                await _db.SaveChangesAsync();
+            }
+            else
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
         }
         public async Task<GetProfileDTO> GetProfileDto(string token)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtToken = tokenHandler.ReadJwtToken(token);
-            string email = "";
-            if (jwtToken.Payload.TryGetValue("email", out var emailObj) && emailObj is string emailValue)
-            {
-                email = emailValue;
-            }
+            string email = _tokenHelper.GetUserEmailFromToken(token);
 
             if (!string.IsNullOrEmpty(email))
             {
@@ -141,6 +144,7 @@ namespace backendTask.Repository
                 {
                     return new GetProfileDTO
                     {
+                        Id = user.Id,
                         FullName = user.FullName,
                         BirthDate = user.BirthDate,
                         Gender = user.Gender,
@@ -149,53 +153,65 @@ namespace backendTask.Repository
                         Address = user.Address,
                     };
                 }
+                else
+                {
+                    throw new BadRequestException("Данный пользователь не найден");
+                }
+            }
+            else
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
 
-            return null;
         }
         public async Task EditProfile(string token, EditProfileRequestDTO editProfileRequestDTO)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtToken = tokenHandler.ReadJwtToken(token);
-            string email = "";
-            if (jwtToken.Payload.TryGetValue("email", out var emailObj) && emailObj is string emailValue)
-            {
-                email = emailValue;
-            }
+            string email = _tokenHelper.GetUserEmailFromToken(token);
             if (!string.IsNullOrEmpty(email))
             {
                 var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
 
                 if (user != null)
                 {
-                    if (editProfileRequestDTO.FullName != null)
+
+                    user.FullName = editProfileRequestDTO.FullName ?? user.FullName;
+
+                    if (editProfileRequestDTO.Address != null)
                     {
-                        user.FullName = editProfileRequestDTO.FullName;
+                        if (editProfileRequestDTO.Address != null && !await AddressChecker.IsAddressNormal(_adb, editProfileRequestDTO.Address))
+                        {
+                            throw new BadRequestException("Данный адрес не найден, повторите еще раз");
+                        }
+                        user.Address = (Guid)editProfileRequestDTO.Address;
                     }
 
                     if (editProfileRequestDTO.BirthDate != null)
                     {
-                        user.BirthDate = (DateOnly)editProfileRequestDTO.BirthDate;
+                        if (!DateOfBirthValidator.ValidateDateOfBirth((DateTime)(editProfileRequestDTO.BirthDate)))
+                        {
+                            throw new BadRequestException("Неверная дата рождения. Вам должно быть не менее 13 лет и не более 100 лет.");
+                        }
+                        user.BirthDate = (DateTime)(editProfileRequestDTO?.BirthDate);
                     }
 
-                    if (editProfileRequestDTO.Gender != null)
+                    if (editProfileRequestDTO.Phone != null)
                     {
-                        user.Gender = (Gender)editProfileRequestDTO.Gender;
-                    }
-
-                    if (!string.IsNullOrEmpty(editProfileRequestDTO.Phone))
-                    {
+                        if (!PhoneValidator.IsValidPhoneNumber(editProfileRequestDTO.Phone))
+                        {
+                            throw new BadRequestException("Данный формат номера телефона не валиден");
+                        }
                         user.Phone = editProfileRequestDTO.Phone;
-                    }
-
-                    if (!string.IsNullOrEmpty(editProfileRequestDTO.Address))
-                    {
-                        user.Address = editProfileRequestDTO.Address;
                     }
 
                     await _db.SaveChangesAsync();
                 }
             }
+            else
+            {
+                throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
         }
+
+
     }
 }

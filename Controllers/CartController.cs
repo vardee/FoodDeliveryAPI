@@ -1,63 +1,72 @@
-﻿using backendTask.DataBase.Models;
+﻿using backendTask.DataBase;
+using backendTask.DataBase.Dto.CartDTO;
+using backendTask.DataBase.Dto.UserDTO;
+using backendTask.DBContext.Models;
 using backendTask.Repository.IRepository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backendTask.Controllers
 {
+    [Authorize(Policy = "TokenNotInBlackList")]
     public class CartController : Controller
     {
         private readonly ICartRepository _cartRepo;
         private readonly AppDBContext _db;
+        private readonly TokenHelper _tokenHelper;
 
-        public CartController(ICartRepository cartRepo, AppDBContext db)
+        public CartController(ICartRepository cartRepo, AppDBContext db,TokenHelper tokenHelper)
         {
             _cartRepo = cartRepo;
             _db = db;
+            _tokenHelper = tokenHelper;
         }
 
-        [Authorize(Policy = "TokenNotInBlackList")]
+
         [HttpGet("GetUserCart")]
+        [ProducesResponseType(typeof(GetUserCartResponseDTO), 200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> GetUserCart()
         {
-            string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
-            if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer "))
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
             {
-                string token = authorizationHeader.Substring("Bearer ".Length);
-                var result = await _cartRepo.GetUserCartDTO(token);
-                return Ok(result);
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
 
-            return BadRequest(new { message = "Плохой профиль бро" });
+            var result = await _cartRepo.GetUserCartDTO(token);
+            return Ok(result);
         }
-        [Authorize(Policy = "TokenNotInBlackList")]
         [HttpPost("AddToUserCart/{Id:guid}")]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> AddToUserCartDTO(Guid Id)
         {
-            string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
-            if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer "))
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
             {
-                string token = authorizationHeader.Substring("Bearer ".Length);
-                await _cartRepo.AddToUserCartDTO(token, Id);
-                return Ok(new { message = "Блюдо успешно добавлено в корзину" });
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
-
-            return BadRequest(new { message = "Плохой профиль бро" });
+            await _cartRepo.AddToUserCartDTO(token, Id);
+            return Ok();
         }
 
-        [Authorize(Policy = "TokenNotInBlackList")]
         [HttpDelete("DeleteFromUserCart/{Id:guid}")]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> DeleteFromUserCartDTO(Guid Id)
         {
-            string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
-            if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer "))
+            string token = _tokenHelper.GetTokenFromHeader();
+            if (token == null)
             {
-                string token = authorizationHeader.Substring("Bearer ".Length);
-                await _cartRepo.DeleteFromUserCartDTO(token, Id);
-                return Ok(new { message = "Блюдо успешно удалено из корзину" });
+                throw new UnauthorizedException("Данный пользователь не авторизован");
             }
-
-            return BadRequest(new { message = "Плохой профиль бро" });
+            await _cartRepo.DeleteFromUserCartDTO(token, Id);
+            return Ok();
         }
 
     }
