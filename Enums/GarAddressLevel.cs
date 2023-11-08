@@ -1,12 +1,14 @@
 ﻿using backendTask.AdditionalService;
 using System;
+using System.ComponentModel;
 using System.Text.Json.Serialization;
-
 namespace backendTask.Enums
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum GarAddressLevel
     {
+        [EnumTranscription("Void")]
+        Void,
         [EnumTranscription("Регион")]
         Region,
         [EnumTranscription("Административный район ")]

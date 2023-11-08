@@ -6,6 +6,8 @@ namespace backendTask.Enums
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum HouseType
     {
+        [EnumTranscription("Void")]
+        Void,
         [EnumTranscription("Владение")]
         Ownership,
         [EnumTranscription("Дом")]
