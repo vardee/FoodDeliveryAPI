@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using System.ComponentModel.DataAnnotations;
 
-namespace backendTask.InformationHelps
+namespace backendTask.InformationHelps.Attribute
 {
     public class PhoneAttribute : ValidationAttribute
     {

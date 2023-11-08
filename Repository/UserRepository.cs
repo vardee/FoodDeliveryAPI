@@ -13,12 +13,13 @@ using System.Security.AccessControl;
 using System.Security.Claims;
 using System.Text;
 using backendTask.Enums;
-using backendTask.InformationHelps;
 using backendTask.DataBase.Dto.UserDTO;
 using backendTask.DataBase;
 using backendTask.DBContext;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Net;
+using backendTask.DBContext.Models;
+using backendTask.InformationHelps.Validator;
 
 namespace backendTask.Repository
 {
@@ -84,7 +85,18 @@ namespace backendTask.Repository
             {
                 throw new BadRequestException("Данный адрес не найден, повторите еще раз");
             }
-
+            if (!DateOfBirthValidator.ValidateDateOfBirth(registraionRequestDTO.BirthDate))
+            {
+                throw new BadRequestException("Неверная дата рождения. Вам должно быть не менее 13 лет и не более 100 лет.");
+            }
+            if (!PasswordValidator.ValidatePassword(registraionRequestDTO.Password))
+            {
+                throw new BadRequestException("Пароль не соответсвует требованиям, должна быть минимум одна заглавная буква, семь обычных букв, минимум одна цифра и один спец.символ");
+            }
+            if (!PhoneValidator.IsValidPhoneNumber(registraionRequestDTO.Phone))
+            {
+                throw new BadRequestException("Данный формат номера телефона не валиден");
+            }
             User user = new User()
             {
                 FullName = registraionRequestDTO.FullName,
@@ -130,9 +142,9 @@ namespace backendTask.Repository
 
                 if (user != null)
                 {
-
                     return new GetProfileDTO
                     {
+                        Id = user.Id,
                         FullName = user.FullName,
                         BirthDate = user.BirthDate,
                         Gender = user.Gender,
@@ -161,36 +173,34 @@ namespace backendTask.Repository
 
                 if (user != null)
                 {
-                    if (editProfileRequestDTO.FullName != null)
-                    {
-                        user.FullName = editProfileRequestDTO.FullName;
-                    }
 
-                    if (editProfileRequestDTO.BirthDate != null)
-                    {
-                        user.BirthDate = (DateTime)editProfileRequestDTO.BirthDate;
-                    }
+                    user.FullName = editProfileRequestDTO.FullName ?? user.FullName;
 
-                    if (editProfileRequestDTO.Gender != null)
-                    {
-                        user.Gender = (Gender)editProfileRequestDTO.Gender;
-                    }
-
-                    if (!string.IsNullOrEmpty(editProfileRequestDTO.Phone))
-                    {
-                        user.Phone = editProfileRequestDTO.Phone;
-                    }
-
-                    if (!string.IsNullOrEmpty((editProfileRequestDTO.Address).ToString()))
+                    if (editProfileRequestDTO.Address != null)
                     {
                         if (editProfileRequestDTO.Address != null && !await AddressChecker.IsAddressNormal(_adb, editProfileRequestDTO.Address))
                         {
                             throw new BadRequestException("Данный адрес не найден, повторите еще раз");
                         }
-                        else
+                        user.Address = (Guid)editProfileRequestDTO.Address;
+                    }
+
+                    if (editProfileRequestDTO.BirthDate != null)
+                    {
+                        if (!DateOfBirthValidator.ValidateDateOfBirth((DateTime)(editProfileRequestDTO.BirthDate)))
                         {
-                            user.Address = editProfileRequestDTO.Address;
+                            throw new BadRequestException("Неверная дата рождения. Вам должно быть не менее 13 лет и не более 100 лет.");
                         }
+                        user.BirthDate = (DateTime)(editProfileRequestDTO?.BirthDate);
+                    }
+
+                    if (editProfileRequestDTO.Phone != null)
+                    {
+                        if (!PhoneValidator.IsValidPhoneNumber(editProfileRequestDTO.Phone))
+                        {
+                            throw new BadRequestException("Данный формат номера телефона не валиден");
+                        }
+                        user.Phone = editProfileRequestDTO.Phone;
                     }
 
                     await _db.SaveChangesAsync();
@@ -201,5 +211,7 @@ namespace backendTask.Repository
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
         }
+
+
     }
 }

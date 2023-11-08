@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace backendTask.InformationHelps
+namespace backendTask.InformationHelps.Attribute
 {
     public class DateOfBirthAttribute : ValidationAttribute
     {
@@ -22,7 +22,7 @@ namespace backendTask.InformationHelps
                 DateTime now = DateTime.Now;
                 int age = now.Year - dateOfBirth.Year;
 
-                if (now.Month < dateOfBirth.Month || (now.Month == dateOfBirth.Month && now.Day < dateOfBirth.Day))
+                if (now.Month < dateOfBirth.Month || now.Month == dateOfBirth.Month && now.Day < dateOfBirth.Day)
                 {
                     age--;
                 }

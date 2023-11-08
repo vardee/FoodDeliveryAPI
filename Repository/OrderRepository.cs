@@ -3,8 +3,10 @@ using backendTask.DataBase;
 using backendTask.DataBase.Dto;
 using backendTask.DataBase.Dto.CartDTO;
 using backendTask.DataBase.Dto.OrderDTO;
+using backendTask.DataBase.Dto.UserDTO;
 using backendTask.DBContext;
 using backendTask.Enums;
+using backendTask.InformationHelps.Validator;
 using backendTask.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 
@@ -106,6 +108,10 @@ namespace backendTask.Repository
                         _db.Carts.Remove(cartItem);
                     }
                     await _db.SaveChangesAsync();
+                    if (!DateOfBirthValidator.ValidateDateOfBirth(createOrderDTO.deliveryTime))
+                    {
+                        throw new BadRequestException("Доставка должна быть не менее чем через 60 минут.");
+                    }
                     var newOrder = new Order
                     {
                         OrderId = orderId,

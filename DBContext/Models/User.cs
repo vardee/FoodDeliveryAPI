@@ -8,16 +8,13 @@ namespace backendTask.DataBase.Models
     {
         public Guid Id { get; set; }
 
-        [StringLength(1, ErrorMessage = "Имя должно содержать минимум 1 символ.")]
         public string FullName { get; set; }
 
 
-        [DateOfBirthAttribute]
         public DateTime BirthDate { get; set; }
 
         public Gender Gender { get; set; }
 
-        [InformationHelps.PhoneAttribute]
         public string Phone { get; set; }
 
 
@@ -25,7 +22,6 @@ namespace backendTask.DataBase.Models
         public string Email { get; set; }
 
         public Guid Address { get; set; }
-        [PasswordAttribute]
         public string Password { get; set; }
     }
 }
