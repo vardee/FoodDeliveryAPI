@@ -35,7 +35,7 @@ namespace backendTask.Repository
                 }
                 else
                 {
-                    throw new BadRequestException("Пользователь не найден");
+                    throw new BadRequestException("Данный пользователь не найден");
                 }
             }
             else
@@ -88,7 +88,7 @@ namespace backendTask.Repository
                 }
                 else
                 {
-                    throw new BadRequestException("Пользователь не найден");
+                    throw new BadRequestException("Данный пользователь не найден");
                 }
             }
             else

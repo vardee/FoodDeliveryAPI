@@ -1,4 +1,6 @@
-﻿namespace backendTask.DataBase.Dto.OrderDTO
+﻿using backendTask.InformationHelps;
+
+namespace backendTask.DataBase.Dto.OrderDTO
 {
     public class CreateOrderDTO
     {

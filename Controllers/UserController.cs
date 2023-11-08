@@ -28,18 +28,7 @@ namespace backendTask.Controllers
         {
             var loginResponse = await _userRepo.Login(loginRequestDTO);
             var user = _db.Users.FirstOrDefault(x => x.Email == loginRequestDTO.email);
-            if (user==null)
-            {
-                throw new BadRequestException("Неправильный Email или пароль ");
-            }
-            else if(!(HashPassword.VerifyPassword(loginRequestDTO.password, user.Password)))
-            {
-                throw new BadRequestException("Неправильный Email или пароль ");
-            }
-            else
-            {
-                return Ok(new { token = loginResponse.token });
-            }
+            return Ok(new { token = loginResponse.token });
         }
 
 
@@ -50,6 +39,10 @@ namespace backendTask.Controllers
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<IActionResult> Register([FromBody] RegistrationRequestDTO registrationRequestDTO)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var registrationResponse = await _userRepo.Register(registrationRequestDTO);
             return Ok(new { token = registrationResponse.token });
 
@@ -62,7 +55,7 @@ namespace backendTask.Controllers
         public async Task<IActionResult> Logout()
         {
             string token = _tokenHelper.GetTokenFromHeader();
-            if (token == null)
+            if (string.IsNullOrEmpty(token))
             {
                 throw new UnauthorizedException("Данный пользователь не авторизован");
             }
@@ -98,6 +91,10 @@ namespace backendTask.Controllers
             if (token == null)
             {
                 throw new UnauthorizedException("Данный пользователь не авторизован");
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
             }
             await _userRepo.EditProfile(token, editProfileRequestDTO);
             return Ok();

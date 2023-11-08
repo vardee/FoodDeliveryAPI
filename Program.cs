@@ -10,8 +10,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using backendtask.Middleware;
 using backendTask.DBContext;
+using backendTask.AdditionalService.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 

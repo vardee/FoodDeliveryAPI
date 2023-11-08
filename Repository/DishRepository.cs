@@ -18,15 +18,28 @@ namespace backendTask.Repository
         public async Task<GetDishResponseDTO> GetDishResponseDTO(DishCategory dishCategory, bool vegetarian, DishSorting sorting, int page)
         {
             List<Dish> dishes = _db.Dishes.ToList();
+            if (page <= 0)
+            {
+                throw new NotFoundException("Данная страница не найдена");
+            }
 
             if (dishCategory != null)
             {
                 dishes = dishes.Where(d => d.Category == dishCategory).ToList();
             }
 
-            if (!vegetarian)
+            if (vegetarian == false)
             {
-                dishes = dishes.Where(d => d.Vegetarian == true || d.Vegetarian == false).ToList();
+                dishes = dishes.Where(d =>  d.Vegetarian == false).ToList();
+            }
+            else
+            {
+                dishes = dishes.Where(d => d.Vegetarian == true).ToList();
+            }
+
+            if (dishes.Count == 0)
+            {
+                throw new BadRequestException("Нет данных, удовлетворяющих вашим критериям");
             }
 
             switch (sorting)
@@ -51,14 +64,15 @@ namespace backendTask.Repository
                     break;
             }
 
-            int pageSize = 10;
+            int pageSize = 6;
             int skipAmount = (page - 1) * pageSize;
-            List<Dish> currentDishes = dishes.Skip(skipAmount).Take(pageSize).ToList();
 
-            if (currentDishes.Count == 0)
+            if (skipAmount >= dishes.Count)
             {
-                throw new BadRequestException("Страница не найдена");
+                throw new NotFoundException("Данная страница не найдена");
             }
+
+            List<Dish> currentDishes = dishes.Skip(skipAmount).Take(pageSize).ToList();
 
             return new GetDishResponseDTO
             {
@@ -66,7 +80,7 @@ namespace backendTask.Repository
                 PageInformation = new PageInformationDTO
                 {
                     size = pageSize,
-                    count = page,
+                    count = (int)Math.Ceiling((double)dishes.Count / pageSize),
                     current = page
                 }
             };

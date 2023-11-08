@@ -1,4 +1,5 @@
 ﻿using backendTask.Enums;
+using backendTask.InformationHelps;
 using System.ComponentModel.DataAnnotations;
 
 namespace backendTask.DataBase.Dto.UserDTO
@@ -10,10 +11,9 @@ namespace backendTask.DataBase.Dto.UserDTO
 
         public Gender Gender { get; set; }
 
-        [Phone]
         public string Phone { get; set; }
 
-        [EmailAddress(ErrorMessage = "Invalid email address")]
+        [EmailAddress(ErrorMessage = "Неправильный формат email")]
         public string Email { get; set; }
 
         public Guid Address { get; set; }

@@ -6,10 +6,9 @@ using backendTask.DataBase.Dto.OrderDTO;
 using backendTask.DataBase.Dto.UserDTO;
 using backendTask.DBContext;
 using backendTask.Enums;
+using backendTask.InformationHelps.Validator;
 using backendTask.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace backendTask.Repository
 {
@@ -61,7 +60,7 @@ namespace backendTask.Repository
                 }
                 else
                 {
-                    throw new BadRequestException("Пользователь не найден");
+                    throw new BadRequestException("Данный пользователь не найден");
                 }
             }
             else
@@ -92,7 +91,7 @@ namespace backendTask.Repository
 
                     if (!userCartItems.Any())
                     {
-                        throw new BadRequestException("Корзина пуста");
+                        throw new BadRequestException("Ваша корзина пуста");
                     }
 
                     foreach (var cartItem in userCartItems)
@@ -109,6 +108,10 @@ namespace backendTask.Repository
                         _db.Carts.Remove(cartItem);
                     }
                     await _db.SaveChangesAsync();
+                    if (!DateOfBirthValidator.ValidateDateOfBirth(createOrderDTO.deliveryTime))
+                    {
+                        throw new BadRequestException("Доставка должна быть не менее чем через 60 минут.");
+                    }
                     var newOrder = new Order
                     {
                         OrderId = orderId,
@@ -117,15 +120,14 @@ namespace backendTask.Repository
                         OrderTime = DateTime.UtcNow,
                         Status = OrderStatus.InProcess,
                         Price = totalPrice,
-                        Address = createOrderDTO.address.ToString(),
+                        Address = createOrderDTO.address,
                     };
-
                     _db.Orders.Add(newOrder);
                     await _db.SaveChangesAsync();
                 }
                 else
                 {
-                    throw new BadRequestException("Пользователь не найден");
+                    throw new BadRequestException("Данный пользователь не найден");
                 }
             }
             else
@@ -167,7 +169,7 @@ namespace backendTask.Repository
                 }
                 else
                 {
-                    throw new BadRequestException("Пользователь не найден");
+                    throw new BadRequestException("Данный пользователь не найден");
                 }
             }
             else
@@ -195,12 +197,12 @@ namespace backendTask.Repository
                     }
                     else
                     {
-                        throw new BadRequestException("Заказ не найден");
+                        throw new BadRequestException("Данный заказ не найден");
                     }
                 }
                 else
                 {
-                    throw new BadRequestException("Пользователь не найден");
+                    throw new BadRequestException("Данный пользователь не найден");
                 }
             }
             else

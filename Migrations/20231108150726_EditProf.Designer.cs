@@ -12,8 +12,8 @@ using backendTask.DataBase;
 namespace backendTask.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20231108082716_UserAddresses")]
-    partial class UserAddresses
+    [Migration("20231108150726_EditProf")]
+    partial class EditProf
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,9 +33,8 @@ namespace backendTask.Migrations
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("Address")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("DeliveryTime")
                         .HasColumnType("timestamp with time zone");

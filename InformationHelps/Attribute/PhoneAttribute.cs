@@ -1,15 +1,15 @@
 ﻿using System.Text.RegularExpressions;
 using System.ComponentModel.DataAnnotations;
 
-namespace backendTask.InformationHelps
+namespace backendTask.InformationHelps.Attribute
 {
-    public class Phone : ValidationAttribute
+    public class PhoneAttribute : ValidationAttribute
     {
-        private static readonly string PhoneNumberRegex = @"^\+7\s?\d{10}$";
+        private static readonly string PhoneNumberRegex = @"^[78]\d{9}$";
 
-        public Phone()
+        public PhoneAttribute()
         {
-            ErrorMessage = "Invalid phone number format";
+            ErrorMessage = "Данный формат номера телефона не валиден";
         }
 
         public override bool IsValid(object value)

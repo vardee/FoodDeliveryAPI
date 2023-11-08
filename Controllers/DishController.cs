@@ -46,7 +46,7 @@ namespace backendTask.Controllers
             return Ok(result);
         }
         [Authorize(Policy = "TokenNotInBlackList")]
-        [HttpGet("api/dish/{Id:guid}/rating/check")]
+        [HttpGet("dish/{Id:guid}/rating/check")]
         [ProducesResponseType(typeof(CheckUserSetRatingDTO), 200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]
@@ -62,7 +62,7 @@ namespace backendTask.Controllers
         }
 
         [Authorize(Policy = "TokenNotInBlackList")]
-        [HttpPost("api/dish/{Id:guid}/rating")]
+        [HttpPost("dish/{Id:guid}/rating")]
         [ProducesResponseType(typeof(SetDishRatingDTO), 200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 401)]

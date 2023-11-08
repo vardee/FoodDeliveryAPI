@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using backendTask.DBContext.Models;
 using Microsoft.AspNetCore.Http;
 
-namespace backendtask.Middleware
+namespace backendTask.AdditionalService.Exceptions
 {
     public class ExceptionMiddleware
     {
@@ -39,34 +39,34 @@ namespace backendtask.Middleware
             if (exception is BadRequestException)
             {
                 statusCode = (int)HttpStatusCode.BadRequest;
-                message = !string.IsNullOrEmpty(exception.Message) ? exception.Message : "BadRequest";
+                message = !string.IsNullOrEmpty(exception.Message) ? exception.Message : "Плохой запрос";
             }
             else if (exception is UnauthorizedException)
             {
                 statusCode = (int)HttpStatusCode.Unauthorized;
-                message = !string.IsNullOrEmpty(exception.Message) ? exception.Message : "Unauthorized";
+                message = !string.IsNullOrEmpty(exception.Message) ? exception.Message : "Данный пользователь не авторизован";
             }
             else if (exception is InternalServerErrorException)
             {
-                statusCode = (int)HttpStatusCode.Unauthorized;
-                message = !string.IsNullOrEmpty(exception.Message) ? exception.Message : "Internal Server Error";
+                statusCode = (int)HttpStatusCode.InternalServerError;
+                message = !string.IsNullOrEmpty(exception.Message) ? exception.Message : "Внутренняя ошибка сервера";
             }
             else if (exception is ForbiddenException)
             {
-                statusCode = (int)HttpStatusCode.Unauthorized;
-                message = !string.IsNullOrEmpty(exception.Message) ? exception.Message : "Forbidden";
+                statusCode = (int)HttpStatusCode.Forbidden;
+                message = !string.IsNullOrEmpty(exception.Message) ? exception.Message : "Запрещенный";
             }
             else if (exception is NotFoundException)
             {
-                statusCode = (int)HttpStatusCode.Unauthorized;
-                message = !string.IsNullOrEmpty(exception.Message) ? exception.Message : "Not Found";
+                statusCode = (int)HttpStatusCode.NotFound;
+                message = !string.IsNullOrEmpty(exception.Message) ? exception.Message : "Не найдено";
             }
             response.StatusCode = statusCode;
 
             var error = new Error
             {
                 StatusCode = statusCode,
-                Message = !string.IsNullOrEmpty(message) ? message : "Internal Server Error"
+                Message = !string.IsNullOrEmpty(message) ? message : "Внутренняя ошибка сервера"
             };
 
             var options = new JsonSerializerOptions { WriteIndented = true };
