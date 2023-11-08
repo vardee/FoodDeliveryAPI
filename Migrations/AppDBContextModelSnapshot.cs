@@ -30,9 +30,8 @@ namespace backendTask.Migrations
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("Address")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("DeliveryTime")
                         .HasColumnType("timestamp with time zone");

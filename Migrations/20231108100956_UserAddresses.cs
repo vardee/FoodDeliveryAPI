@@ -77,7 +77,7 @@ namespace backendTask.Migrations
                     DeliveryTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     Price = table.Column<int>(type: "integer", nullable: false),
-                    Address = table.Column<string>(type: "text", nullable: false)
+                    Address = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {

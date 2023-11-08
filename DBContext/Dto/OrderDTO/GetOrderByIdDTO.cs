@@ -14,6 +14,6 @@ namespace backendTask.DataBase.Dto.OrderDTO
         public OrderStatus status { get; set; }
         public int price { get; set; }
         public List<GetUserCartResponseDTO> dishes { get; set; }
-        public string address { get; set; }
+        public Guid address { get; set; }
     }
 }

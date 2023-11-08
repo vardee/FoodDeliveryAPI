@@ -3,13 +3,10 @@ using backendTask.DataBase;
 using backendTask.DataBase.Dto;
 using backendTask.DataBase.Dto.CartDTO;
 using backendTask.DataBase.Dto.OrderDTO;
-using backendTask.DataBase.Dto.UserDTO;
 using backendTask.DBContext;
 using backendTask.Enums;
 using backendTask.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace backendTask.Repository
 {
@@ -61,7 +58,7 @@ namespace backendTask.Repository
                 }
                 else
                 {
-                    throw new BadRequestException("Пользователь не найден");
+                    throw new BadRequestException("Данный пользователь не найден");
                 }
             }
             else
@@ -92,7 +89,7 @@ namespace backendTask.Repository
 
                     if (!userCartItems.Any())
                     {
-                        throw new BadRequestException("Корзина пуста");
+                        throw new BadRequestException("Ваша корзина пуста");
                     }
 
                     foreach (var cartItem in userCartItems)
@@ -117,15 +114,14 @@ namespace backendTask.Repository
                         OrderTime = DateTime.UtcNow,
                         Status = OrderStatus.InProcess,
                         Price = totalPrice,
-                        Address = createOrderDTO.address.ToString(),
+                        Address = createOrderDTO.address,
                     };
-
                     _db.Orders.Add(newOrder);
                     await _db.SaveChangesAsync();
                 }
                 else
                 {
-                    throw new BadRequestException("Пользователь не найден");
+                    throw new BadRequestException("Данный пользователь не найден");
                 }
             }
             else
@@ -167,7 +163,7 @@ namespace backendTask.Repository
                 }
                 else
                 {
-                    throw new BadRequestException("Пользователь не найден");
+                    throw new BadRequestException("Данный пользователь не найден");
                 }
             }
             else
@@ -195,12 +191,12 @@ namespace backendTask.Repository
                     }
                     else
                     {
-                        throw new BadRequestException("Заказ не найден");
+                        throw new BadRequestException("Данный заказ не найден");
                     }
                 }
                 else
                 {
-                    throw new BadRequestException("Пользователь не найден");
+                    throw new BadRequestException("Данный пользователь не найден");
                 }
             }
             else

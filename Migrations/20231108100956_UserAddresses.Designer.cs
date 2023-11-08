@@ -12,7 +12,7 @@ using backendTask.DataBase;
 namespace backendTask.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20231108082716_UserAddresses")]
+    [Migration("20231108100956_UserAddresses")]
     partial class UserAddresses
     {
         /// <inheritdoc />
@@ -33,9 +33,8 @@ namespace backendTask.Migrations
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("Address")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("DeliveryTime")
                         .HasColumnType("timestamp with time zone");

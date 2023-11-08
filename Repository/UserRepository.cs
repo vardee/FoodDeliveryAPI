@@ -56,7 +56,11 @@ namespace backendTask.Repository
         {
             var user = _db.Users.FirstOrDefault(u => u.Email == loginRequestDTO.email);
 
-            if (user == null || !HashPassword.VerifyPassword(loginRequestDTO.password, user.Password))
+            if (user == null)
+            {
+                throw new BadRequestException("Неправильный Email или пароль");
+            }
+            else if(!HashPassword.VerifyPassword(loginRequestDTO.password, user.Password))
             {
                 throw new BadRequestException("Неправильный Email или пароль");
             }
@@ -139,7 +143,7 @@ namespace backendTask.Repository
                 }
                 else
                 {
-                    throw new BadRequestException("Пользователь не найден");
+                    throw new BadRequestException("Данный пользователь не найден");
                 }
             }
             else
