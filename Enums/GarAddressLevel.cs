@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace backendTask.Enums
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum GarAdressLevel
+    public enum GarAddressLevel
     {
         [EnumTranscription("Регион")]
         Region,

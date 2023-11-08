@@ -45,8 +45,8 @@ namespace backendTask.Repository
                             objectId = (long)currentObject.objectid,
                             objectGuid = currentObjectsAddr.objectguid,
                             text = textOut,
-                            objectLevel = ((GarAdressLevel)int.Parse(currentObjectsAddr.level)).ToString(),
-                            objectLevelText = _enumTranscription.GetTranscription((GarAdressLevel)Enum.Parse(typeof(GarAdressLevel), currentObjectLevel))
+                            objectLevel = ((GarAddressLevel)int.Parse(currentObjectsAddr.level)).ToString(),
+                            objectLevelText = _enumTranscription.GetTranscription((GarAddressLevel)Enum.Parse(typeof(GarAddressLevel), currentObjectLevel))
                         });
                     }
                     else if (currentObjectsHouses != null)
