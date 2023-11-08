@@ -12,7 +12,7 @@ namespace backendTask.AdditionalService
         {
             Value = value;
         }
-        public  string GetTranscription(Enum enumValue)
+        public string GetTranscription(Enum enumValue)
         {
             var fieldInfo = enumValue.GetType().GetField(enumValue.ToString());
             var transcriptionAttribute = (EnumTranscription)Attribute.GetCustomAttribute(fieldInfo, typeof(EnumTranscription));

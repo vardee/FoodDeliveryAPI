@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace backendTask.DBContext.Models
 {
-    public class as_adm_hierachy
+    public class AsAdmHiearchy
     {
         [Key]
         public long id { get; set; }

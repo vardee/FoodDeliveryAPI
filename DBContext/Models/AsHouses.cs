@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace backendTask.DBContext.Models
 {
-    public class as_houses
+    public class AsHouses
     {
         [Key]
         public long id { get; set; }
@@ -27,7 +27,7 @@ namespace backendTask.DBContext.Models
 
         public int? opertypeid { get; set; }
 
-        public long? orevid { get; set; }
+        public long? previd { get; set; }
 
         public long? nextid { get; set; }
 

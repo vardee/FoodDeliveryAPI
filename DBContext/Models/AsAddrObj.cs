@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace backendTask.DBContext.Models
 {
-    public class as_addr_obj
+    public class AsAddrObj
     {
         [Key]
         public long id { get; set; }
@@ -33,7 +33,7 @@ namespace backendTask.DBContext.Models
 
         public int? isactual { get; set; }
 
-        public int? sactive { get; set; }
+        public int? isactive { get; set; }
 
     }
 }
